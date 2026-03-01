@@ -658,7 +658,7 @@
   <div class="panel" id="panel-ogretmen">
     <div class="section-title">Öğretmen Programı</div>
     <div class="section-sub">Bir öğretmen seçin</div>
-    <input class="search-box" type="text" placeholder="İsimle ara…" oninput="filterTeachers(this.value)">
+    <input id="search-box-ogr" class="search-box" type="text" placeholder="İsimle ara…" oninput="filterTeachers(this.value)">
     <div class="teacher-grid" id="teacher-grid"></div>
     <div style="margin-top:28px;" id="ogretmen-table"></div>
   </div>
@@ -1075,9 +1075,9 @@ function buildTeacherGrid() {
 }
 
 function filterTeachers(q) {
-  q = q.toLowerCase();
+  q = (q || '').toLowerCase();
   document.querySelectorAll('.teacher-card').forEach(el => {
-    el.style.display = el.dataset.name.includes(q) ? '' : 'none';
+    el.style.display = (el.dataset.name || '').includes(q) ? '' : 'none';
   });
 }
 
@@ -1355,6 +1355,18 @@ function switchTab(name) {
   event.target.classList.add('active');
   if (name === 'suan') renderSuan();
   if (name === 'genel') renderGenel();
+  if (name === 'sinif') {
+    document.getElementById('sinif-select').value = '';
+    document.getElementById('sinif-table').innerHTML = '';
+  }
+  if (name === 'ogretmen') {
+    if (selectedOgr !== null) {
+      document.getElementById(`tc-${selectedOgr}`)?.classList.remove('selected');
+      selectedOgr = null;
+    }
+    document.getElementById('ogretmen-table').innerHTML = '';
+    const sb = document.getElementById('search-box-ogr'); if(sb) { sb.value=''; filterTeachers(''); }
+  }
 }
 
 // ============================================================
