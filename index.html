@@ -700,6 +700,18 @@
 </div>
 
 <script>
+const SAATLER_NORMAL = [
+  ["08:00","08:40"],["08:55","09:35"],["09:45","10:25"],["10:35","11:15"],
+  ["11:25","12:05"],["13:00","13:40"],["13:50","14:30"],["14:40","15:20"]
+];
+const SAATLER_CUMA = [
+  ["08:00","09:20"],["08:00","09:20"],["09:30","10:10"],["10:20","11:00"],
+  ["11:10","11:50"],["11:55","12:35"],["13:50","14:30"],["14:40","15:20"]
+];
+function getSaatLabel(gun, saat) {
+  return gun === 4 ? SAATLER_CUMA[saat] : SAATLER_NORMAL[saat];
+}
+
 // ============================================================
 // VERİ
 // ============================================================
@@ -925,16 +937,16 @@ updateClock();
 // ============================================================
 function getCurrentLesson() {
   const now = new Date();
-  const dow = now.getDay(); // 0=Sun,1=Mon,...6=Sat
-  if (dow === 0 || dow === 6) return null; // weekend
-  const gun = dow - 1; // 0=Pzt
+  const dow = now.getDay();
+  if (dow === 0 || dow === 6) return null;
+  const gun = dow - 1;
   const mins = now.getHours() * 60 + now.getMinutes();
-  const saatler = gun === 4 ? saatler_cuma : saatler_normal;
+  const saatler = gun === 4 ? SAATLER_CUMA : SAATLER_NORMAL;
   for (let s = 0; s < 8; s++) {
-    const [start, end] = saatler[s];
-    const sm = parseInt(start)*60 + parseInt(start.split(':')[1]);
-    const em = parseInt(end)*60 + parseInt(end.split(':')[1]);
-    if (mins >= sm && mins <= em) return { gun, saat: s, saatStr: start + '–' + end };
+    const [startStr, endStr] = saatler[s];
+    const sm = parseInt(startStr) * 60 + parseInt(startStr.split(':')[1]);
+    const em = parseInt(endStr) * 60 + parseInt(endStr.split(':')[1]);
+    if (mins >= sm && mins <= em) return { gun, saat: s, saatStr: startStr + '–' + endStr };
   }
   return null;
 }
@@ -983,22 +995,37 @@ function buildSinifSelect() {
   });
 }
 
+
 function renderSinif() {
   const idx = parseInt(document.getElementById('sinif-select').value);
   if (isNaN(idx)) return;
   const cur = getCurrentLesson();
-  const saatler_label = [["08:00","08:40"],["08:55","09:35"],["09:45","10:25"],["10:35","11:15"],["11:25","12:05"],["13:00","13:40"],["13:50","14:30"],["14:40","15:20"]];
+
   let html = `<div class="schedule-wrap"><table>
     <thead><tr>
       <th>Saat</th>
       ${GUNLER.map(g=>`<th>${g}</th>`).join('')}
     </tr></thead><tbody>`;
+
   for (let s = 0; s < 8; s++) {
-    html += `<tr><td><span class="time-label">${saatler_label[s][0]}</span><span class="day-label">${s+1}. Saat</span></td>`;
+    const [nStart, nEnd] = SAATLER_NORMAL[s];
+    const [cStart, cEnd] = SAATLER_CUMA[s];
+    const cumaFarkli = cStart !== nStart;
+
+    html += `<tr><td>
+      <span class="time-label">${nStart}–${nEnd}</span>
+      <span class="day-label">${s+1}. Saat</span>
+    </td>`;
+
     for (let g = 0; g < 5; g++) {
       const [dIdx, oIdx] = program[idx][g][s];
       const isCur = cur && cur.gun === g && cur.saat === s;
+      const [gStart, gEnd] = getSaatLabel(g, s);
+      const cumaTag = (g === 4 && cumaFarkli)
+        ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>`
+        : '';
       html += `<td><div class="cell ${isCur?'current':''}">
+        ${cumaTag}
         <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
         <span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
       </div></td>`;
@@ -1044,7 +1071,6 @@ function selectTeacher(idx) {
 
 function renderOgretmen(ogrIdx) {
   const cur = getCurrentLesson();
-  const saatler_label = [["08:00","08:40"],["08:55","09:35"],["09:45","10:25"],["10:35","11:15"],["11:25","12:05"],["13:00","13:40"],["13:50","14:30"],["14:40","15:20"]];
   let html = `<div class="section-title" style="margin-bottom:4px">${ogretmenler[ogrIdx][0]}</div>
     <div class="section-sub">${ogretmenler[ogrIdx][1]} — Ders programı</div>
     <div class="schedule-wrap"><table>
@@ -1053,14 +1079,22 @@ function renderOgretmen(ogrIdx) {
       ${GUNLER.map(g=>`<th>${g}</th>`).join('')}
     </tr></thead><tbody>`;
   for (let s = 0; s < 8; s++) {
-    html += `<tr><td><span class="time-label">${saatler_label[s][0]}</span><span class="day-label">${s+1}. Saat</span></td>`;
+    const [nStart, nEnd] = SAATLER_NORMAL[s];
+    const [cStart] = SAATLER_CUMA[s];
+    const cumaFarkli = cStart !== nStart;
+    html += `<tr><td><span class="time-label">${nStart}–${nEnd}</span><span class="day-label">${s+1}. Saat</span></td>`;
     for (let g = 0; g < 5; g++) {
+      const [gStart, gEnd] = getSaatLabel(g, s);
+      const cumaTag = (g === 4 && cumaFarkli)
+        ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>`
+        : '';
       let found = false;
       for (let i = 0; i < SINIFLAR.length; i++) {
         if (program[i][g][s][1] === ogrIdx) {
           const dIdx = program[i][g][s][0];
           const isCur = cur && cur.gun === g && cur.saat === s;
           html += `<td><div class="cell ${isCur?'current':''}">
+            ${cumaTag}
             <span class="cell-snf">${SINIFLAR[i]}</span>
             <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
           </div></td>`;
@@ -1069,7 +1103,7 @@ function renderOgretmen(ogrIdx) {
         }
       }
       if (!found) {
-        html += `<td><div class="cell"><span style="color:var(--border)">—</span></div></td>`;
+        html += `<td><div class="cell">${cumaTag}<span style="color:var(--border)">—</span></div></td>`;
       }
     }
     html += `</tr>`;
@@ -1117,27 +1151,71 @@ function setGenelSaat(s, el) {
 
 function renderGenel() {
   const cur = getCurrentLesson();
-  const saatler_label = [["08:00","08:40"],["08:55","09:35"],["09:45","10:25"],["10:35","11:15"],["11:25","12:05"],["13:00","13:40"],["13:50","14:30"],["14:40","15:20"]];
   const gunler = genelGun === -1 ? [0,1,2,3,4] : [genelGun];
   const saatlerList = genelSaat === -1 ? [0,1,2,3,4,5,6,7] : [genelSaat];
+
+  if (genelSaat === -1) {
+    let html = '';
+    for (let i = 0; i < SINIFLAR.length; i++) {
+      html += `<div style="margin-bottom:2px;">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.85rem;color:var(--accent);
+          padding:10px 14px 6px;background:var(--surface);border:1px solid var(--border);
+          border-bottom:none;letter-spacing:1px;">${SINIFLAR[i]}</div>
+        <div class="schedule-wrap"><table>
+          <thead><tr>
+            <th>Saat</th>
+            ${gunler.map(g=>`<th>${GUNLER[g]}</th>`).join('')}
+          </tr></thead><tbody>`;
+      for (let s of saatlerList) {
+        const [nStart, nEnd] = SAATLER_NORMAL[s];
+        const [cStart] = SAATLER_CUMA[s];
+        const cumaFarkli = cStart !== nStart;
+        html += `<tr><td><span class="time-label">${nStart}–${nEnd}</span><span class="day-label">${s+1}. Saat</span></td>`;
+        for (let g of gunler) {
+          const [dIdx, oIdx] = program[i][g][s];
+          const isCur = cur && cur.gun === g && cur.saat === s;
+          const [gStart, gEnd] = getSaatLabel(g, s);
+          const cumaTag = (g === 4 && cumaFarkli)
+            ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>`
+            : '';
+          html += `<td><div class="cell ${isCur?'current':''}">
+            ${cumaTag}
+            <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
+            <span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
+          </div></td>`;
+        }
+        html += `</tr>`;
+      }
+      html += `</tbody></table></div></div>`;
+    }
+    document.getElementById('genel-table').innerHTML = html;
+    return;
+  }
+
+  // Tek saat seçiliyse
+  const s = saatlerList[0];
+  const [nStart, nEnd] = SAATLER_NORMAL[s];
+  const [cStart] = SAATLER_CUMA[s];
+  const cumaFarkli = cStart !== nStart;
   let html = `<div class="schedule-wrap"><table>
     <thead><tr>
-      <th>Sınıf / Saat</th>
-      ${gunler.map(g=>`<th>${GUNLER[g]}</th>`).join('')}
+      <th>Sınıf</th>
+      ${gunler.map(g => {
+        const [gS, gE] = getSaatLabel(g, s);
+        return `<th>${GUNLER[g]}<br><span style="font-size:0.55rem;font-weight:400;color:var(--muted)">${gS}–${gE}</span></th>`;
+      }).join('')}
     </tr></thead><tbody>`;
-  for (let s of saatlerList) {
-    for (let i = 0; i < SINIFLAR.length; i++) {
-      html += `<tr><td><span class="time-label">${saatler_label[s][0]}</span><span class="day-label">${SINIFLAR[i]} — ${s+1}. Saat</span></td>`;
-      for (let g of gunler) {
-        const [dIdx, oIdx] = program[i][g][s];
-        const isCur = cur && cur.gun === g && cur.saat === s;
-        html += `<td><div class="cell ${isCur?'current':''}">
-          <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
-          <span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
-        </div></td>`;
-      }
-      html += `</tr>`;
+  for (let i = 0; i < SINIFLAR.length; i++) {
+    html += `<tr><td><span class="day-label" style="padding:10px 14px;">${SINIFLAR[i]}</span></td>`;
+    for (let g of gunler) {
+      const [dIdx, oIdx] = program[i][g][s];
+      const isCur = cur && cur.gun === g && cur.saat === s;
+      html += `<td><div class="cell ${isCur?'current':''}">
+        <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
+        <span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
+      </div></td>`;
     }
+    html += `</tr>`;
   }
   html += `</tbody></table></div>`;
   document.getElementById('genel-table').innerHTML = html;
