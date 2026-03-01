@@ -1033,7 +1033,29 @@ function renderSinif() {
     html += `</tr>`;
   }
   html += `</tbody></table></div>`;
-  document.getElementById('sinif-table').innerHTML = html;
+  // Öğretmen listesi
+  const ogrSet = new Map();
+  for (let g = 0; g < 5; g++) {
+    for (let s = 0; s < 8; s++) {
+      const [dIdx, oIdx] = program[idx][g][s];
+      if (dIdx !== 0 && !ogrSet.has(oIdx)) {
+        ogrSet.set(oIdx, ogretmenler[oIdx][1]);
+      }
+    }
+  }
+  // Müzik öğretmeni ekle (GR-MZK -> 28, öğretmen listede yok olabilir)
+  let ogrHtml = `<div style="margin-top:28px;">
+    <div class="section-title" style="font-size:1rem;margin-bottom:4px;">Öğretmen Listesi</div>
+    <div class="section-sub">Bu sınıfa giren öğretmenler</div>
+    <div class="teacher-grid">`;
+  [...ogrSet.entries()].sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1])).forEach(([oIdx, branch]) => {
+    ogrHtml += `<div class="teacher-card" onclick="switchTab('ogretmen');selectTeacher(${oIdx})" style="cursor:pointer">
+      <span class="teacher-name">${ogretmenler[oIdx][0]}</span>
+      <span class="teacher-branch">${branch}</span>
+    </div>`;
+  });
+  ogrHtml += `</div></div>`;
+  document.getElementById('sinif-table').innerHTML = html + ogrHtml;
 }
 
 // ============================================================
@@ -1109,7 +1131,24 @@ function renderOgretmen(ogrIdx) {
     html += `</tr>`;
   }
   html += `</tbody></table></div>`;
-  document.getElementById('ogretmen-table').innerHTML = html;
+  // Girdiği sınıflar
+  const snfSet = new Set();
+  for (let i = 0; i < SINIFLAR.length; i++) {
+    for (let g = 0; g < 5; g++) {
+      for (let s = 0; s < 8; s++) {
+        if (program[i][g][s][1] === ogrIdx) snfSet.add(i);
+      }
+    }
+  }
+  let snfHtml = `<div style="margin-top:28px;">
+    <div class="section-title" style="font-size:1rem;margin-bottom:4px;">Girdiği Sınıflar</div>
+    <div class="section-sub">Bu öğretmenin ders verdiği sınıflar</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">`;
+  [...snfSet].sort((a,b)=>a-b).forEach(i => {
+    snfHtml += `<div class="chip selected" onclick="switchTab('sinif');document.getElementById('sinif-select').value=${i};renderSinif()" style="cursor:pointer;font-size:0.75rem;padding:8px 18px;">${SINIFLAR[i]}</div>`;
+  });
+  snfHtml += `</div></div>`;
+  document.getElementById('ogretmen-table').innerHTML = html + snfHtml;
   document.getElementById('ogretmen-table').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
