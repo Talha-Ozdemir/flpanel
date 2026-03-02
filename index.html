@@ -606,6 +606,88 @@
   .d26 { color: #f9a8d4; }  /* Aile */
   .d27 { color: #fdba74; }  /* İnkılap */
   .d28 { color: #d8b4fe; }  /* Resim-Mzk */
+
+  @media (max-width: 900px) {
+    /* Header */
+    .logo-fl { font-size: clamp(1rem, 4vw, 1.5rem); }
+    .logo-sub { font-size: clamp(0.45rem, 1.2vw, 0.6rem); }
+    .clock { font-size: clamp(0.9rem, 3vw, 1.3rem); }
+    .clock-date { font-size: clamp(0.45rem, 1.2vw, 0.6rem); }
+
+    /* Nav */
+    .nav-btn { padding: clamp(8px,1.5vw,12px) clamp(6px,1.5vw,14px); font-size: clamp(0.48rem,1.2vw,0.65rem); letter-spacing: 0; }
+
+    /* Layout */
+    .panel { padding: clamp(12px,3vw,28px) clamp(6px,2vw,16px); }
+    .container { padding: 0 clamp(2px,1vw,8px); }
+    .section-title { font-size: clamp(0.9rem,3vw,1.3rem); }
+    .chip { font-size: clamp(0.48rem,1.1vw,0.62rem); padding: clamp(4px,0.8vw,7px) clamp(7px,1.5vw,14px); }
+    select { font-size: clamp(0.55rem,1.3vw,0.72rem); }
+
+    /* Tablo — tamamen dinamik */
+    .schedule-wrap { overflow-x: hidden; }
+    table {
+      min-width: 0 !important;
+      width: 100% !important;
+      table-layout: fixed;
+      font-size: clamp(0.42rem, 1.4vw, 0.72rem);
+    }
+    th {
+      padding: clamp(4px,1vw,10px) clamp(2px,0.5vw,6px);
+      font-size: clamp(0.4rem, 1.1vw, 0.62rem);
+      letter-spacing: 0;
+    }
+    /* Saat sütunu dar, diğerleri eşit */
+    table th:first-child,
+    table td:first-child {
+      width: clamp(28px, 7vw, 56px) !important;
+    }
+    .cell {
+      padding: clamp(2px,0.6vw,8px) clamp(2px,0.5vw,6px);
+      min-height: clamp(30px,6vw,52px);
+      gap: 1px;
+    }
+    .cell-ders {
+      font-size: clamp(0.44rem, 1.3vw, 0.68rem);
+      letter-spacing: 0;
+    }
+    .cell-ogr {
+      font-size: clamp(0.38rem, 1vw, 0.56rem);
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+    .cell-snf {
+      font-size: clamp(0.4rem, 1.1vw, 0.58rem);
+      letter-spacing: 0;
+    }
+    .time-label {
+      font-size: clamp(0.36rem, 0.9vw, 0.52rem);
+      padding: clamp(3px,0.6vw,8px) clamp(2px,0.4vw,6px) clamp(1px,0.3vw,3px);
+      letter-spacing: 0;
+    }
+    .day-label {
+      font-size: clamp(0.4rem, 1vw, 0.56rem);
+      padding: clamp(1px,0.3vw,3px) clamp(2px,0.4vw,6px) clamp(3px,0.6vw,8px);
+    }
+
+    /* Öğretmen grid */
+    .teacher-grid { grid-template-columns: 1fr !important; }
+    .teacher-name { font-size: clamp(0.6rem, 1.5vw, 0.72rem); }
+    .teacher-branch { font-size: clamp(0.5rem, 1.2vw, 0.6rem); }
+
+    /* Şu an grid */
+    .suan-grid { grid-template-columns: 1fr 1fr !important; }
+    .suan-ders { font-size: clamp(0.7rem, 2vw, 1rem); }
+    .suan-ogr { font-size: clamp(0.48rem, 1.2vw, 0.62rem); }
+    .suan-sinif { font-size: clamp(0.45rem, 1.1vw, 0.58rem); }
+
+    /* Diğer */
+    .chip-group { gap: clamp(3px,0.6vw,6px); }
+    .selector-row { gap: clamp(6px,1.5vw,12px); }
+  }
 </style>
 </head>
 <body>
