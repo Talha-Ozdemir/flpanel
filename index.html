@@ -1465,7 +1465,7 @@ function calcKarne() {
     rows += `<div class="karne-ders-row">
       <span class="d${dIdx}">${dersler[dIdx]}</span>
       <span style="color:var(--muted);font-size:0.6rem;">${parts.length} not</span>
-      <span>${avg.toFixed(2)}</span>
+      <span>${avg.toFixed(6)}</span>
     </div>`;
   }
 
@@ -1481,7 +1481,7 @@ function calcKarne() {
       ${rows}
       <div class="karne-avg" style="color:${renk}">
         <span>Ağırlıklı Ortalama</span>
-        <span>${genel.toFixed(2)}</span>
+        <span>${genel.toFixed(6)}</span>
       </div>
     </div>`;
 }
