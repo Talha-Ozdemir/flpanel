@@ -1074,7 +1074,7 @@ function renderSuan() {
   if (cur.tenefus) {
     label.textContent = `Teneffüs — ${cur.kalan} dk sonra ${cur.saat+1}. ders (${cur.saatStr})`;
   } else {
-    label.textContent = `${GUNLER[cur.gun]} — ${cur.saatStr} — Saat ${cur.saat+1}`;
+    label.textContent = `${GUNLER[cur.gun]} — ${cur.saatStr} — ${cur.saat+1}. Saat`;
   }
 
   if (suanMod === 'sinif') {
