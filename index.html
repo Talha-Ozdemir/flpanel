@@ -696,14 +696,10 @@
   <!-- KARNE -->
   <div class="panel" id="panel-karne">
     <div class="section-title">Karne Hesaplayıcı</div>
-    <div class="section-sub">Dönem veya yılsonu ortalaması</div>
+    <div class="section-sub">Notları gir, ağırlıklı ortalama otomatik hesaplanır</div>
     <div class="selector-row">
       <select id="karne-sinif" onchange="setupKarne()">
         <option value="">— Sınıf Seç —</option>
-      </select>
-      <select id="karne-donem" onchange="setupKarne()">
-        <option value="1">Dönem Ortalaması</option>
-        <option value="2">Yılsonu Ortalaması</option>
       </select>
     </div>
     <div id="karne-form"></div>
@@ -746,8 +742,8 @@ const ogretmenler = [
   ["Ertürk AYDIN","Beden"],["İbrahim Çetin ÖZTÜRK","Beden"],
   ["Ayfer BAKIR","Bilişim"],["Dr. Nebahat KOCASARAÇ","Biyoloji"],
   ["Nursen COŞKUN","Biyoloji"],["Özer AKGÜMÜŞ","Biyoloji"],
-  ["Mecit Mumin POLAT","Coğrafya"],["Mustafa EVREN","Din Kültürü"],
-  ["Saadet KARA","Din Kültürü"],["Sema MURATOĞLU","Felsefe"],
+  ["Mecit Mumin POLAT","Coğrafya"],["Mustafa EVREN","Din"],
+  ["Saadet KARA","Din"],["Sema MURATOĞLU","Felsefe"],
   ["Sevilay Canan ÖZTURAN","Felsefe"],["Alaaddin ÖZTÜRK","Fizik"],
   ["Serkan AYDOĞAN","Fizik"],["Gülen DEMİRKOL","Fizik"],
   ["Semiha Seda TERZİ","Görsel Sanatlar"],["Seyfi Seydi SALANTUR","Görsel Sanatlar"],
@@ -1421,10 +1417,9 @@ function buildKarneSinif() {
 
 function setupKarne() {
   const snfIdx = parseInt(document.getElementById('karne-sinif').value);
-  const donem = parseInt(document.getElementById('karne-donem').value);
   if (isNaN(snfIdx)) return;
 
-  // Unique dersler (excluding rehberlik)
+  // Unique dersler (rehberlik hariç)
   const d = {};
   for (let g = 0; g < 5; g++) {
     for (let s = 0; s < 8; s++) {
@@ -1435,48 +1430,47 @@ function setupKarne() {
     }
   }
 
-  const nsayi = donem * 4; // 4 or 8 notes per subject
   let html = `<div class="karne-form">`;
   Object.keys(d).forEach(dIdx => {
     html += `<div class="input-group">
-      <label>${dersler[dIdx]} (${d[dIdx]} saat/hafta) — ${nsayi} not girin, virgülle ayırın</label>
-      <input type="text" id="karne-${dIdx}" placeholder="${Array(nsayi).fill('__').join(', ')}">
+      <label>${dersler[dIdx]} <span style="color:var(--muted)">(${d[dIdx]} saat/hafta)</span> — notları virgülle gir</label>
+      <input type="text" id="karne-${dIdx}" placeholder="örn: 85, 90, 78" oninput="calcKarne()">
     </div>`;
   });
-  html += `<button class="btn" onclick="calcKarne()">Hesapla</button></div>`;
+  html += `</div>`;
   document.getElementById('karne-form').innerHTML = html;
   document.getElementById('karne-result').innerHTML = '';
-  // Store d
   window._karneD = d;
 }
 
 function calcKarne() {
   const d = window._karneD;
   if (!d) return;
-  const donem = parseInt(document.getElementById('karne-donem').value);
-  const nsayi = donem * 4;
+
   let tsaat = 0, tnot = 0;
   let rows = '';
-  let valid = true;
-  const keys = Object.keys(d);
-  const avgs = [];
+  let herhangiNotVar = false;
 
-  for (const dIdx of keys) {
-    const val = document.getElementById(`karne-${dIdx}`).value.trim();
-    const parts = val.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
-    if (parts.length !== nsayi) { valid = false; break; }
-    const avg = parts.reduce((a,b) => a+b, 0) / nsayi;
-    avgs.push(avg);
+  for (const dIdx of Object.keys(d)) {
+    const input = document.getElementById(`karne-${dIdx}`);
+    if (!input) continue;
+    const val = input.value.trim();
+    const parts = val.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x) && x >= 0 && x <= 100);
+    if (parts.length === 0) continue;
+
+    herhangiNotVar = true;
+    const avg = parts.reduce((a,b) => a+b, 0) / parts.length;
     tsaat += d[dIdx];
     tnot += d[dIdx] * avg;
     rows += `<div class="karne-ders-row">
       <span class="d${dIdx}">${dersler[dIdx]}</span>
+      <span style="color:var(--muted);font-size:0.6rem;">${parts.length} not</span>
       <span>${avg.toFixed(2)}</span>
     </div>`;
   }
 
-  if (!valid) {
-    document.getElementById('karne-result').innerHTML = `<div class="karne-result" style="color:var(--accent3)">Hata: Her ders için tam olarak ${nsayi} not girmelisiniz.</div>`;
+  if (!herhangiNotVar) {
+    document.getElementById('karne-result').innerHTML = '';
     return;
   }
 
@@ -1486,7 +1480,7 @@ function calcKarne() {
     <div class="karne-result">
       ${rows}
       <div class="karne-avg" style="color:${renk}">
-        <span>Genel Ortalama</span>
+        <span>Ağırlıklı Ortalama</span>
         <span>${genel.toFixed(2)}</span>
       </div>
     </div>`;
