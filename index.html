@@ -638,8 +638,14 @@
   <!-- ŞU AN -->
   <div class="panel active" id="panel-suan">
     <div class="section-title">Şu Anki Dersler</div>
-    <div class="section-sub">Tüm sınıflar — anlık</div>
-    <div class="now-badge"><div class="now-dot"></div><span id="suan-label">Hesaplanıyor…</span></div>
+    <div class="section-sub" id="suan-sub">Tüm sınıflar — anlık</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div class="now-badge" style="margin-bottom:0"><div class="now-dot"></div><span id="suan-label">Hesaplanıyor…</span></div>
+      <div class="chip-group">
+        <div class="chip selected" id="suan-toggle-sinif" onclick="setSuanMod('sinif',this)">Sınıflar</div>
+        <div class="chip" id="suan-toggle-ogr" onclick="setSuanMod('ogretmen',this)">Öğretmenler</div>
+      </div>
+    </div>
     <div class="suan-grid" id="suan-grid"></div>
   </div>
 
@@ -667,8 +673,14 @@
   <!-- GENEL -->
   <div class="panel" id="panel-genel">
     <div class="section-title">Genel Program</div>
-    <div class="section-sub">Tüm sınıflar görünümü</div>
-    <div class="selector-row">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div class="section-sub" style="margin-bottom:0;" id="genel-sub">Tüm sınıflar görünümü</div>
+      <div class="chip-group">
+        <div class="chip selected" id="genel-toggle-sinif" onclick="setGenelMod('sinif',this)">Sınıflar</div>
+        <div class="chip" id="genel-toggle-ogr" onclick="setGenelMod('ogretmen',this)">Öğretmenler</div>
+      </div>
+    </div>
+    <div class="selector-row" id="genel-filters">
       <div>
         <div style="font-size:0.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Gün</div>
         <div class="chip-group" id="genel-gun-chips"></div>
@@ -706,7 +718,7 @@ const SAATLER_NORMAL = [
   ["11:25","12:05"],["13:00","13:40"],["13:50","14:30"],["14:40","15:20"]
 ];
 const SAATLER_CUMA = [
-  ["08:00","08:40"],["08:40","09:20"],["09:30","10:10"],["10:20","11:00"],
+  ["08:00","09:20"],["08:00","09:20"],["09:30","10:10"],["10:20","11:00"],
   ["11:10","11:50"],["11:55","12:35"],["13:50","14:30"],["14:40","15:20"]
 ];
 function getSaatLabel(gun, saat) {
@@ -718,12 +730,12 @@ function getSaatLabel(gun, saat) {
 // ============================================================
 
 const dersler = [
-  "Rehberlik","Beden","Bilişim","Biyoloji","Coğrafya","Din Kültürü",
+  "Rehberlik","Beden","Bilişim","Biyoloji","Coğrafya","Din",
   "Felsefe","Fizik","Görsel Sanatlar","İngilizce","Kimya",
-  "Matematik","Müzik","Tarih","Edebiyat","Sağlık Bilgisi","Peygamberimizin Hayatı",
-  "Proje","Temel Dini Bilgiler","Tarım","Demokrasi","Fen Uygulamaları",
-  "Destek Fizik","Destek Kimya","Destek Biyoloji","Matematik Uygulamaları","Aile",
-  "İnkılap","Resim-Müzik"
+  "Matematik","Müzik","Tarih","Edebiyat","Sağlık","Siyer",
+  "Proje","Tdb","Tarım","Demokrasi","Fen Uyglm",
+  "Dstk Fzik","Dstk Kmya","Dstk Biyo","Mat Uyglm","Aile",
+  "İnkılap","Rsim-Mzk"
 ];
 
 const ogretmenler = [
@@ -942,12 +954,28 @@ function getCurrentLesson() {
   const gun = dow - 1;
   const mins = now.getHours() * 60 + now.getMinutes();
   const saatler = gun === 4 ? SAATLER_CUMA : SAATLER_NORMAL;
+
+  // Ders saatlerini dakikaya çevir
+  const parsed = saatler.map(([s, e]) => ({
+    sm: parseInt(s)*60 + parseInt(s.split(':')[1]),
+    em: parseInt(e)*60 + parseInt(e.split(':')[1]),
+    startStr: s, endStr: e
+  }));
+
+  // Tam ders içinde miyiz?
   for (let s = 0; s < 8; s++) {
-    const [startStr, endStr] = saatler[s];
-    const sm = parseInt(startStr) * 60 + parseInt(startStr.split(':')[1]);
-    const em = parseInt(endStr) * 60 + parseInt(endStr.split(':')[1]);
-    if (mins >= sm && mins <= em) return { gun, saat: s, saatStr: startStr + '–' + endStr };
+    if (mins >= parsed[s].sm && mins <= parsed[s].em)
+      return { gun, saat: s, saatStr: parsed[s].startStr + '–' + parsed[s].endStr, tenefus: false };
   }
+
+  // Teneffüste miyiz? Sonraki dersi bul
+  for (let s = 0; s < 7; s++) {
+    if (mins > parsed[s].em && mins < parsed[s+1].sm) {
+      const kalan = parsed[s+1].sm - mins;
+      return { gun, saat: s+1, saatStr: parsed[s+1].startStr + '–' + parsed[s+1].endStr, tenefus: true, kalan };
+    }
+  }
+
   return null;
 }
 
@@ -958,28 +986,53 @@ function renderSuan() {
   const grid = document.getElementById('suan-grid');
   const label = document.getElementById('suan-label');
   const cur = getCurrentLesson();
+
   if (!cur) {
     const now = new Date();
     const dow = now.getDay();
-    if (dow === 0 || dow === 6) {
-      label.textContent = 'Bugün okul yok (hafta sonu)';
-    } else {
-      label.textContent = 'Şu an ders yok';
-    }
+    label.textContent = (dow === 0 || dow === 6) ? 'Bugün okul yok (hafta sonu)' : 'Şu an ders yok';
     grid.innerHTML = '<div class="empty">Ders saati dışındasınız.</div>';
     return;
   }
-  label.textContent = `${GUNLER[cur.gun]} — ${cur.saatStr} — Saat ${cur.saat+1}`;
-  let html = '';
-  for (let i = 0; i < SINIFLAR.length; i++) {
-    const [dIdx, oIdx] = program[i][cur.gun][cur.saat];
-    html += `<div class="suan-card current-time">
-      <div class="suan-sinif">${SINIFLAR[i]}</div>
-      <div class="suan-ders d${dIdx}">${dersler[dIdx]}</div>
-      <div class="suan-ogr">${ogretmenler[oIdx][0]}</div>
-    </div>`;
+  if (cur.tenefus) {
+    label.textContent = `Teneffüs — ${cur.kalan} dk sonra ${cur.saat+1}. ders (${cur.saatStr})`;
+  } else {
+    label.textContent = `${GUNLER[cur.gun]} — ${cur.saatStr} — Saat ${cur.saat+1}`;
   }
-  grid.innerHTML = html;
+
+  if (suanMod === 'sinif') {
+    let html = '';
+    for (let i = 0; i < SINIFLAR.length; i++) {
+      const [dIdx, oIdx] = program[i][cur.gun][cur.saat];
+      html += `<div class="suan-card current-time">
+        <div class="suan-sinif">${SINIFLAR[i]}</div>
+        <div class="suan-ders d${dIdx}">${dersler[dIdx]}</div>
+        <div class="suan-ogr">${ogretmenler[oIdx][0]}</div>
+      </div>`;
+    }
+    grid.innerHTML = html;
+  } else {
+    // Öğretmen modu
+    let html = '';
+    for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
+      let foundSinif = null, foundDers = null;
+      for (let i = 0; i < SINIFLAR.length; i++) {
+        if (program[i][cur.gun][cur.saat][1] === oIdx) {
+          foundSinif = i;
+          foundDers = program[i][cur.gun][cur.saat][0];
+          break;
+        }
+      }
+      html += `<div class="suan-card ${foundSinif !== null ? 'current-time' : ''}">
+        <div class="suan-sinif">${ogretmenler[oIdx][1]}</div>
+        <div class="suan-ders" style="color:var(--text);font-size:0.78rem;">${ogretmenler[oIdx][0]}</div>
+        <div class="suan-ogr">${foundSinif !== null
+          ? `<span class="d${foundDers}">${dersler[foundDers]}</span> — <span style="color:var(--accent2)">${SINIFLAR[foundSinif]}</span>`
+          : '<span style="color:var(--muted)">Boş</span>'}</div>
+      </div>`;
+    }
+    grid.innerHTML = html;
+  }
 }
 
 // ============================================================
@@ -1157,6 +1210,25 @@ function renderOgretmen(ogrIdx) {
 // ============================================================
 let genelGun = -1;
 let genelSaat = -1;
+let genelMod = 'sinif'; // 'sinif' | 'ogretmen'
+let suanMod = 'sinif';  // 'sinif' | 'ogretmen'
+
+function setSuanMod(mod, el) {
+  suanMod = mod;
+  document.getElementById('suan-toggle-sinif').classList.toggle('selected', mod === 'sinif');
+  document.getElementById('suan-toggle-ogr').classList.toggle('selected', mod === 'ogretmen');
+  document.getElementById('suan-sub').textContent = mod === 'sinif' ? 'Tüm sınıflar — anlık' : 'Tüm öğretmenler — anlık';
+  renderSuan();
+}
+
+function setGenelMod(mod, el) {
+  genelMod = mod;
+  document.getElementById('genel-toggle-sinif').classList.toggle('selected', mod === 'sinif');
+  document.getElementById('genel-toggle-ogr').classList.toggle('selected', mod === 'ogretmen');
+  document.getElementById('genel-sub').textContent = mod === 'sinif' ? 'Tüm sınıflar görünümü' : 'Tüm öğretmenler görünümü';
+  document.getElementById('genel-filters').style.display = '';
+  renderGenel();
+}
 
 function buildGenelChips() {
   const gunGroup = document.getElementById('genel-gun-chips');
@@ -1193,6 +1265,81 @@ function renderGenel() {
   const gunler = genelGun === -1 ? [0,1,2,3,4] : [genelGun];
   const saatlerList = genelSaat === -1 ? [0,1,2,3,4,5,6,7] : [genelSaat];
 
+  if (genelMod === 'ogretmen') {
+    // Tek saat seçiliyse: tüm öğretmenler tek tabloda
+    if (genelSaat !== -1) {
+      const s = saatlerList[0];
+      let html = `<div class="schedule-wrap"><table>
+        <thead><tr>
+          <th>Öğretmen</th>
+          ${gunler.map(g => {
+            const [gS, gE] = getSaatLabel(g, s);
+            return `<th>${GUNLER[g]}<br><span style="font-size:0.55rem;font-weight:400;color:var(--muted)">${gS}–${gE}</span></th>`;
+          }).join('')}
+        </tr></thead><tbody>`;
+      for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
+        html += `<tr><td><span class="day-label" style="padding:8px 14px;font-size:0.65rem;">${ogretmenler[oIdx][0]}</span></td>`;
+        for (let g of gunler) {
+          const isCur = cur && cur.gun === g && cur.saat === s;
+          let foundSinif = null, foundDers = null;
+          for (let i = 0; i < SINIFLAR.length; i++) {
+            if (program[i][g][s][1] === oIdx) { foundSinif = i; foundDers = program[i][g][s][0]; break; }
+          }
+          html += `<td><div class="cell ${isCur && foundSinif !== null ? 'current' : ''}">
+            ${foundSinif !== null
+              ? `<span class="cell-snf">${SINIFLAR[foundSinif]}</span><span class="cell-ders d${foundDers}">${dersler[foundDers]}</span>`
+              : `<span style="color:var(--border)">—</span>`}
+          </div></td>`;
+        }
+        html += `</tr>`;
+      }
+      html += `</tbody></table></div>`;
+      document.getElementById('genel-table').innerHTML = html;
+      return;
+    }
+
+    // Tüm saatler: her öğretmen kendi bloğunda
+    let html = '';
+    for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
+      html += `<div style="margin-bottom:2px;">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;color:var(--accent2);
+          padding:8px 14px 6px;background:var(--surface);border:1px solid var(--border);
+          border-bottom:none;letter-spacing:1px;">${ogretmenler[oIdx][0]} <span style="color:var(--muted);font-size:0.6rem;font-family:'Space Mono',monospace;">— ${ogretmenler[oIdx][1]}</span></div>
+        <div class="schedule-wrap"><table>
+          <thead><tr>
+            <th>Saat</th>
+            ${gunler.map(g=>`<th>${GUNLER[g]}</th>`).join('')}
+          </tr></thead><tbody>`;
+      for (let s of saatlerList) {
+        const [nStart, nEnd] = SAATLER_NORMAL[s];
+        const [cStart] = SAATLER_CUMA[s];
+        const cumaFarkli = cStart !== nStart;
+        html += `<tr><td><span class="time-label">${nStart}–${nEnd}</span><span class="day-label">${s+1}. Saat</span></td>`;
+        for (let g of gunler) {
+          const [gStart, gEnd] = getSaatLabel(g, s);
+          const cumaTag = (g === 4 && cumaFarkli)
+            ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>` : '';
+          const isCur = cur && cur.gun === g && cur.saat === s;
+          let foundSinif = null, foundDers = null;
+          for (let i = 0; i < SINIFLAR.length; i++) {
+            if (program[i][g][s][1] === oIdx) { foundSinif = i; foundDers = program[i][g][s][0]; break; }
+          }
+          html += `<td><div class="cell ${isCur && foundSinif !== null ? 'current' : ''}">
+            ${cumaTag}
+            ${foundSinif !== null
+              ? `<span class="cell-snf">${SINIFLAR[foundSinif]}</span><span class="cell-ders d${foundDers}">${dersler[foundDers]}</span>`
+              : `<span style="color:var(--border)">—</span>`}
+          </div></td>`;
+        }
+        html += `</tr>`;
+      }
+      html += `</tbody></table></div></div>`;
+    }
+    document.getElementById('genel-table').innerHTML = html;
+    return;
+  }
+
+  // Sınıf modu
   if (genelSaat === -1) {
     let html = '';
     for (let i = 0; i < SINIFLAR.length; i++) {
@@ -1215,8 +1362,7 @@ function renderGenel() {
           const isCur = cur && cur.gun === g && cur.saat === s;
           const [gStart, gEnd] = getSaatLabel(g, s);
           const cumaTag = (g === 4 && cumaFarkli)
-            ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>`
-            : '';
+            ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>` : '';
           html += `<td><div class="cell ${isCur?'current':''}">
             ${cumaTag}
             <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
@@ -1231,7 +1377,7 @@ function renderGenel() {
     return;
   }
 
-  // Tek saat seçiliyse
+  // Tek saat seçili - sınıf modu
   const s = saatlerList[0];
   const [nStart, nEnd] = SAATLER_NORMAL[s];
   const [cStart] = SAATLER_CUMA[s];
