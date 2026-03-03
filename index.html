@@ -20,6 +20,25 @@
     --card: #161622;
   }
 
+  :root.light {
+    --bg: #edeae4;
+    --surface: #e4e0d9;
+    --card: #f5f2ee;
+    --border: #ccc8c0;
+    --text: #1a1612;
+    --muted: #6e6558;
+    --highlight: rgba(5,120,85,0.1);
+    --accent: #0d7a5f;
+    --accent2: #3730a3;
+    --accent3: #be185d;
+    --grid-line: rgba(5,120,85,0.08);
+  }
+
+  /* Açık temada ders renkleri koyu ve doygun olsun */
+  :root.light [class^="d"], :root.light [class*=" d"] {
+    filter: brightness(0.55) saturate(1.6);
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -36,8 +55,8 @@
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(110,231,183,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(110,231,183,0.03) 1px, transparent 1px);
+      linear-gradient(var(--grid-line, rgba(110,231,183,0.03)) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line, rgba(110,231,183,0.03)) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
     z-index: 0;
@@ -56,7 +75,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(10,10,15,0.92);
+    background: var(--bg);
     backdrop-filter: blur(12px);
   }
   header {
@@ -588,34 +607,34 @@
   }
 
   /* Ders renkleri */
-  .d0 { color: #94a3b8; }   /* Rehberlik */
-  .d1 { color: #fb923c; }   /* Beden */
-  .d2 { color: #38bdf8; }   /* Bilişim */
-  .d3 { color: #4ade80; }   /* Biyoloji */
-  .d4 { color: #facc15; }   /* Coğrafya */
-  .d5 { color: #a78bfa; }   /* Din */
-  .d6 { color: #f472b6; }   /* Felsefe */
-  .d7 { color: #22d3ee; }   /* Fizik */
-  .d9 { color: #60a5fa; }   /* İngilizce */
-  .d10 { color: #f87171; }  /* Kimya */
-  .d11 { color: #6ee7b7; }  /* Matematik */
-  .d12 { color: #c4b5fd; }  /* Müzik */
-  .d13 { color: #fbbf24; }  /* Tarih */
-  .d14 { color: #34d399; }  /* Edebiyat */
-  .d15 { color: #a3e635; }  /* Sağlık */
-  .d16 { color: #e879f9; }  /* Siyer */
-  .d17 { color: #818cf8; }  /* Proje */
-  .d18 { color: #c084fc; }  /* Tdb */
-  .d19 { color: #86efac; }  /* Tarım */
-  .d20 { color: #fcd34d; }  /* Demokrasi */
-  .d21 { color: #67e8f9; }  /* Fen Uyglm */
-  .d22 { color: #93c5fd; }  /* Dstk Fzik */
-  .d23 { color: #fca5a5; }  /* Dstk Kmya */
-  .d24 { color: #86efac; }  /* Dstk Biyo */
-  .d25 { color: #a5f3fc; }  /* Mat Uyglm */
-  .d26 { color: #f9a8d4; }  /* Aile */
-  .d27 { color: #fdba74; }  /* İnkılap */
-  .d28 { color: #d8b4fe; }  /* Resim-Mzk */
+  .d0  { color: #94a3b8; }  /* Rehberlik       — gri */
+  .d1  { color: #f97316; }  /* Beden           — parlak turuncu */
+  .d2  { color: #67e8f9; }  /* Bilişim         — açık cyan */
+  .d3  { color: #86efac; }  /* Biyoloji        — açık yeşil */
+  .d4  { color: #fde047; }  /* Coğrafya        — parlak sarı */
+  .d5  { color: #c4b5fd; }  /* Din             — açık mor */
+  .d6  { color: #f9a8d4; }  /* Felsefe         — açık pembe */
+  .d7  { color: #38bdf8; }  /* Fizik           — gökyüzü mavisi */
+  .d9  { color: #818cf8; }  /* İngilizce       — periwinkle */
+  .d10 { color: #fca5a5; }  /* Kimya           — açık kırmızı */
+  .d11 { color: #fbbf24; }  /* Matematik       — altın sarısı */
+  .d12 { color: #e879f9; }  /* Müzik           — magenta */
+  .d13 { color: #fb923c; }  /* Tarih           — turuncu */
+  .d14 { color: #2dd4bf; }  /* Edebiyat        — turkuaz */
+  .d15 { color: #a3e635; }  /* Sağlık          — limon */
+  .d16 { color: #f472b6; }  /* Siyer           — pembe */
+  .d17 { color: #6ee7b7; }  /* Proje           — nane yeşili */
+  .d18 { color: #a78bfa; }  /* Tdb             — lavanta */
+  .d19 { color: #4ade80; }  /* Tarım           — yeşil */
+  .d20 { color: #fcd34d; }  /* Demokrasi       — sarı */
+  .d21 { color: #22d3ee; }  /* Fen Uyglm       — cyan */
+  .d22 { color: #60a5fa; }  /* Dstk Fzik       — mavi */
+  .d23 { color: #f87171; }  /* Dstk Kmya       — kırmızı */
+  .d24 { color: #34d399; }  /* Dstk Biyo       — zümrüt */
+  .d25 { color: #facc15; }  /* Mat Uyglm       — sarı */
+  .d26 { color: #fb7185; }  /* Aile            — gül kırmızı */
+  .d27 { color: #fdba74; }  /* İnkılap         — şeftali */
+  .d28 { color: #d8b4fe; }  /* Resim-Mzk       — leylak */
 
   @media (max-width: 900px) {
     /* Header */
@@ -718,6 +737,7 @@
     <button class="nav-btn" onclick="switchTab('ogretmen')">Öğretmen</button>
     <button class="nav-btn" onclick="switchTab('genel')">Genel</button>
     <button class="nav-btn" onclick="switchTab('karne')">Karne</button>
+    <button id="theme-btn" onclick="toggleTheme()" title="Tema değiştir" class="nav-btn" style="margin-left:auto;">☀️</button>
   </div>
 </nav>
 </div>
@@ -1644,6 +1664,26 @@ renderSuan();
 setInterval(() => {
   if (document.getElementById('panel-suan').classList.contains('active')) renderSuan();
 }, 30000);
+</script>
+
+<script>
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('fl-theme', isLight ? 'light' : 'dark');
+}
+// Kayıtlı temayı uygula
+(function() {
+  const saved = localStorage.getItem('fl-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('theme-btn');
+      if (btn) btn.textContent = '🌙';
+    });
+  }
+  // Koyu modda buton ☀️ olarak başlasın (zaten HTML'de ☀️)
+})();
 </script>
 </body>
 </html>
