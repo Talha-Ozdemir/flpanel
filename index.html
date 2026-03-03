@@ -499,6 +499,19 @@
     outline: 1px solid rgba(110,231,183,0.25);
     outline-offset: -1px;
   }
+  .suan-card.clickable {
+    cursor: pointer;
+    transition: background 0.15s, outline-color 0.15s, transform 0.1s;
+  }
+  .suan-card.clickable:hover {
+    background: rgba(110,231,183,0.12);
+    outline: 1px solid rgba(110,231,183,0.5);
+    outline-offset: -1px;
+    transform: translateY(-1px);
+  }
+  .suan-card.clickable:active {
+    transform: translateY(0);
+  }
 
   .suan-sinif {
     font-size: 0.6rem;
@@ -1063,6 +1076,25 @@ function getCurrentLesson() {
 // ============================================================
 // ŞU AN PANELİ
 // ============================================================
+
+function goToSinif(idx) {
+  switchTab('sinif');
+  document.getElementById('sinif-select').value = idx;
+  renderSinif();
+  // Sayfayı en üste kaydır
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function goToOgretmen(oIdx) {
+  switchTab('ogretmen');
+  // Öğretmen grid'de ilgili karta scroll yap ve seç
+  setTimeout(() => {
+    selectTeacher(oIdx);
+    const card = document.getElementById(`tc-${oIdx}`);
+    if (card) card.scrollIntoView({behavior: 'smooth', block: 'center'});
+  }, 50);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
 function renderSuan() {
   const grid = document.getElementById('suan-grid');
   const label = document.getElementById('suan-label');
@@ -1085,7 +1117,7 @@ function renderSuan() {
     let html = '';
     for (let i = 0; i < SINIFLAR.length; i++) {
       const [dIdx, oIdx] = program[i][cur.gun][cur.saat];
-      html += `<div class="suan-card current-time">
+      html += `<div class="suan-card current-time clickable" onclick="goToSinif(${i})" title="${SINIFLAR[i]} programına git">
         <div class="suan-sinif">${SINIFLAR[i]}</div>
         <div class="suan-ders d${dIdx}">${dersler[dIdx]}</div>
         <div class="suan-ogr">${ogretmenler[oIdx][0]}</div>
@@ -1104,7 +1136,7 @@ function renderSuan() {
           break;
         }
       }
-      html += `<div class="suan-card ${foundSinif !== null ? 'current-time' : ''}">
+      html += `<div class="suan-card ${foundSinif !== null ? 'current-time' : ''} clickable" onclick="goToOgretmen(${oIdx})" title="${ogretmenler[oIdx][0]} programına git">
         <div class="suan-sinif">${ogretmenler[oIdx][1]}</div>
         <div class="suan-ders" style="color:var(--text);font-size:0.78rem;">${ogretmenler[oIdx][0]}</div>
         <div class="suan-ogr">${foundSinif !== null
