@@ -626,18 +626,13 @@
     table {
       min-width: 0 !important;
       width: 100% !important;
-      table-layout: fixed;
+      table-layout: auto;
       font-size: clamp(0.42rem, 1.4vw, 0.72rem);
     }
     th {
       padding: clamp(4px,1vw,10px) clamp(2px,0.5vw,6px);
       font-size: clamp(0.4rem, 1.1vw, 0.62rem);
       letter-spacing: 0;
-    }
-    /* Saat sütunu dar, diğerleri eşit */
-    table th:first-child,
-    table td:first-child {
-      width: clamp(28px, 7vw, 56px) !important;
     }
     .cell {
       padding: clamp(2px,0.6vw,8px) clamp(2px,0.5vw,6px);
@@ -790,6 +785,15 @@
 </div>
 
 <script>
+function cellOgr(dIdx, oIdx) {
+  // Resim-Müzik dersinde iki öğretmen göster (Seyfi Seydi + Zahide ÜLKE)
+  if (dIdx === 28) {
+    return `<span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
+            <span class="cell-ogr" style="color:var(--accent2);opacity:0.85;">${ogretmenler[32][0]}</span>`;
+  }
+  return `<span class="cell-ogr">${ogretmenler[oIdx][0]}</span>`;
+}
+
 const SAATLER_NORMAL = [
   ["08:00","08:40"],["08:55","09:35"],["09:45","10:25"],["10:35","11:15"],
   ["11:25","12:05"],["13:00","13:40"],["13:50","14:30"],["14:40","15:20"]
@@ -1094,7 +1098,7 @@ function renderSuan() {
     for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
       let foundSinif = null, foundDers = null;
       for (let i = 0; i < SINIFLAR.length; i++) {
-        if (program[i][cur.gun][cur.saat][1] === oIdx) {
+        if (program[i][cur.gun][cur.saat][1] === oIdx || (oIdx === 32 && program[i][cur.gun][cur.saat][0] === 28)) {
           foundSinif = i;
           foundDers = program[i][cur.gun][cur.saat][0];
           break;
@@ -1157,7 +1161,7 @@ function renderSinif() {
       html += `<td><div class="cell ${isCur?'current':''}">
         ${cumaTag}
         <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
-        <span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
+        ${cellOgr(dIdx, oIdx)}
       </div></td>`;
     }
     html += `</tr>`;
@@ -1165,14 +1169,18 @@ function renderSinif() {
   html += `</tbody></table></div>`;
   // Öğretmen listesi
   const ogrSet = new Map();
+  let hasGrMzk = false;
   for (let g = 0; g < 5; g++) {
     for (let s = 0; s < 8; s++) {
       const [dIdx, oIdx] = program[idx][g][s];
       if (dIdx !== 0 && !ogrSet.has(oIdx)) {
         ogrSet.set(oIdx, ogretmenler[oIdx][1]);
       }
+      if (dIdx === 28) hasGrMzk = true;
     }
   }
+  // Resim-Müzik dersi varsa Zahide ÜLKE'yi de ekle
+  if (hasGrMzk) ogrSet.set(32, ogretmenler[32][1]);
   // Müzik öğretmeni ekle (GR-MZK -> 28, öğretmen listede yok olabilir)
   let ogrHtml = `<div style="margin-top:28px;">
     <div class="section-title" style="font-size:1rem;margin-bottom:4px;">Öğretmen Listesi</div>
@@ -1242,8 +1250,10 @@ function renderOgretmen(ogrIdx) {
         : '';
       let found = false;
       for (let i = 0; i < SINIFLAR.length; i++) {
-        if (program[i][g][s][1] === ogrIdx) {
-          const dIdx = program[i][g][s][0];
+        const [dIdx, pOgrIdx] = program[i][g][s];
+        // Normal eşleşme VEYA Zahide (32) için tüm GR-MZK (28) dersleri
+        const match = pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28);
+        if (match) {
           const isCur = cur && cur.gun === g && cur.saat === s;
           html += `<td><div class="cell ${isCur?'current':''}">
             ${cumaTag}
@@ -1360,7 +1370,7 @@ function renderGenel() {
           const isCur = cur && cur.gun === g && cur.saat === s;
           let foundSinif = null, foundDers = null;
           for (let i = 0; i < SINIFLAR.length; i++) {
-            if (program[i][g][s][1] === oIdx) { foundSinif = i; foundDers = program[i][g][s][0]; break; }
+            if (program[i][g][s][1] === oIdx || (oIdx === 32 && program[i][g][s][0] === 28)) { foundSinif = i; foundDers = program[i][g][s][0]; break; }
           }
           html += `<td><div class="cell ${isCur && foundSinif !== null ? 'current' : ''}">
             ${foundSinif !== null
@@ -1399,7 +1409,7 @@ function renderGenel() {
           const isCur = cur && cur.gun === g && cur.saat === s;
           let foundSinif = null, foundDers = null;
           for (let i = 0; i < SINIFLAR.length; i++) {
-            if (program[i][g][s][1] === oIdx) { foundSinif = i; foundDers = program[i][g][s][0]; break; }
+            if (program[i][g][s][1] === oIdx || (oIdx === 32 && program[i][g][s][0] === 28)) { foundSinif = i; foundDers = program[i][g][s][0]; break; }
           }
           html += `<td><div class="cell ${isCur && foundSinif !== null ? 'current' : ''}">
             ${cumaTag}
@@ -1443,7 +1453,7 @@ function renderGenel() {
           html += `<td><div class="cell ${isCur?'current':''}">
             ${cumaTag}
             <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
-            <span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
+            ${cellOgr(dIdx, oIdx)}
           </div></td>`;
         }
         html += `</tr>`;
@@ -1474,7 +1484,7 @@ function renderGenel() {
       const isCur = cur && cur.gun === g && cur.saat === s;
       html += `<td><div class="cell ${isCur?'current':''}">
         <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
-        <span class="cell-ogr">${ogretmenler[oIdx][0]}</span>
+        ${cellOgr(dIdx, oIdx)}
       </div></td>`;
     }
     html += `</tr>`;
