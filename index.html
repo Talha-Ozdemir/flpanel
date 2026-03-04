@@ -368,9 +368,9 @@
     font-weight: 700;
     color: var(--text);
     letter-spacing: 0.5px;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-word;
     max-width: 100%;
     display: block;
   }
@@ -743,6 +743,8 @@
     .cell-ders {
       font-size: clamp(0.6rem, 1.3vw, 0.68rem);
       letter-spacing: 0;
+      white-space: normal;
+      word-break: break-word;
     }
     .cell-ogr {
       font-size: clamp(0.54rem, 1vw, 0.56rem);
@@ -1277,7 +1279,7 @@ function renderSinif() {
       const isCur = cur && cur.gun === g && cur.saat === s;
       const [gStart, gEnd] = getSaatLabel(g, s);
       const cumaTag = (g === 4 && cumaFarkli)
-        ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>`
+        ? `<span style="font-size:clamp(0.36rem,1vw,0.52rem);color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;white-space:nowrap;overflow:hidden;">${gStart}–${gEnd}</span>`
         : '';
       html += `<td><div class="cell ${isCur?'current':''}">
         ${cumaTag}
@@ -1367,7 +1369,7 @@ function renderOgretmen(ogrIdx) {
     for (let g = 0; g < 5; g++) {
       const [gStart, gEnd] = getSaatLabel(g, s);
       const cumaTag = (g === 4 && cumaFarkli)
-        ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>`
+        ? `<span style="font-size:clamp(0.36rem,1vw,0.52rem);color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;white-space:nowrap;overflow:hidden;">${gStart}–${gEnd}</span>`
         : '';
       let found = false;
       for (let i = 0; i < SINIFLAR.length; i++) {
@@ -1526,7 +1528,7 @@ function renderGenel() {
         for (let g of gunler) {
           const [gStart, gEnd] = getSaatLabel(g, s);
           const cumaTag = (g === 4 && cumaFarkli)
-            ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>` : '';
+            ? `<span style="font-size:clamp(0.36rem,1vw,0.52rem);color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;white-space:nowrap;overflow:hidden;">${gStart}–${gEnd}</span>` : '';
           const isCur = cur && cur.gun === g && cur.saat === s;
           let foundSinif = null, foundDers = null;
           for (let i = 0; i < SINIFLAR.length; i++) {
@@ -1570,7 +1572,7 @@ function renderGenel() {
           const isCur = cur && cur.gun === g && cur.saat === s;
           const [gStart, gEnd] = getSaatLabel(g, s);
           const cumaTag = (g === 4 && cumaFarkli)
-            ? `<span style="font-size:0.52rem;color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;">${gStart}–${gEnd}</span>` : '';
+            ? `<span style="font-size:clamp(0.36rem,1vw,0.52rem);color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;white-space:nowrap;overflow:hidden;">${gStart}–${gEnd}</span>` : '';
           html += `<td><div class="cell ${isCur?'current':''}">
             ${cumaTag}
             <span class="cell-ders d${dIdx}">${dersler[dIdx]}</span>
