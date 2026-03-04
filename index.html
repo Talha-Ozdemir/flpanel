@@ -598,7 +598,7 @@
   }
 
   .suan-sinif {
-    font-size: 0.6rem;
+    font-size: clamp(0.6rem, 1.8vw, 0.85rem);
     letter-spacing: 2px;
     color: var(--muted);
     text-transform: uppercase;
@@ -608,13 +608,13 @@
   .suan-ders {
     font-family: 'Syne', sans-serif;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 2.5vw, 1.4rem);
     color: var(--text);
     margin-bottom: 4px;
   }
 
   .suan-ogr {
-    font-size: 0.62rem;
+    font-size: clamp(0.62rem, 1.8vw, 0.9rem);
     color: var(--accent2);
   }
 
@@ -769,9 +769,9 @@
 
     /* Şu an grid */
     .suan-grid { grid-template-columns: 1fr 1fr !important; }
-    .suan-ders { font-size: clamp(0.82rem, 2vw, 1rem); }
-    .suan-ogr { font-size: clamp(0.6rem, 1.2vw, 0.62rem); }
-    .suan-sinif { font-size: clamp(0.58rem, 1.1vw, 0.58rem); }
+    .suan-ders { font-size: clamp(0.9rem, 2.5vw, 1.4rem); }
+    .suan-ogr { font-size: clamp(0.62rem, 1.8vw, 0.9rem); }
+    .suan-sinif { font-size: clamp(0.6rem, 1.8vw, 0.85rem); }
 
     /* Diğer */
     .chip-group { gap: clamp(3px,0.6vw,6px); }
@@ -1223,7 +1223,7 @@ function renderSuan() {
       }
       html += `<div class="suan-card ${foundSinif !== null ? 'current-time has-ders' : ''} clickable" onclick="goToOgretmen(${oIdx})" title="${ogretmenler[oIdx][0]} programına git">
         <div class="suan-sinif">${ogretmenler[oIdx][1]}</div>
-        <div class="suan-ders" style="color:var(--text);font-size:clamp(0.5rem,1.2vw,0.78rem);">${ogretmenler[oIdx][0]}</div>
+        <div class="suan-ders" style="color:var(--text);font-size:clamp(0.75rem,2vw,1.1rem);">${ogretmenler[oIdx][0]}</div>
         <div class="suan-ogr">${foundSinif !== null
           ? `<span class="d${foundDers}">${dersler[foundDers]}</span> — <span style="color:var(--accent2)">${SINIFLAR[foundSinif]}</span>`
           : '<span style="color:var(--muted)">Boş</span>'}</div>
