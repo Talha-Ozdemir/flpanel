@@ -36,6 +36,10 @@
     --cell-current-outline: rgba(13,122,95,0.3);
     --chip-selected-bg: rgba(13,122,95,0.1);
     --chip-selected-border: rgba(13,122,95,0.32);
+    --cell-bg: rgba(13,122,95,0.06);
+    --cell-border: rgba(13,122,95,0.18);
+    --cell-bg: rgba(13,122,95,0.06);
+    --cell-border: rgba(13,122,95,0.18);
     --cell-bg: rgba(110,210,170,0.12);
     --cell-border: rgba(110,210,170,0.3);
   }
@@ -50,6 +54,10 @@
     --cell-current-outline: rgba(110,231,183,0.4);
     --chip-selected-bg: rgba(110,231,183,0.15);
     --chip-selected-border: rgba(110,231,183,0.4);
+    --cell-bg: rgba(110,231,183,0.04);
+    --cell-border: rgba(110,231,183,0.12);
+    --cell-bg: rgba(110,231,183,0.04);
+    --cell-border: rgba(110,231,183,0.12);
     --cell-bg: rgba(110,231,183,0.04);
     --cell-border: rgba(110,231,183,0.12);
   }
@@ -350,6 +358,9 @@
     gap: 3px;
     cursor: default;
     transition: background 0.15s;
+    background: var(--cell-bg);
+    border: 1px solid var(--cell-border);
+    border-radius: 2px;
   }
 
   .cell:hover { background: var(--highlight); }
