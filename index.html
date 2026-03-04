@@ -283,8 +283,8 @@
   /* Saat sütunu dar, diğerleri eşit */
   .schedule-wrap table th:first-child,
   .schedule-wrap table td:first-child {
-    width: 60px;
-    min-width: 60px;
+    width: clamp(60px, 7vw, 90px);
+    min-width: clamp(60px, 7vw, 90px);
     text-align: left;
     padding: 0;
   }
@@ -297,15 +297,15 @@
   /* Öğretmen listesi — ilk sütun geniş */
   .schedule-wrap table.ogr-table th:first-child,
   .schedule-wrap table.ogr-table td:first-child {
-    width: 108px;
-    min-width: 108px;
+    width: clamp(108px, 14vw, 200px);
+    min-width: clamp(108px, 14vw, 200px);
   }
 
   /* Sınıf listesi — ilk sütun dar */
   .schedule-wrap table.snf-table th:first-child,
   .schedule-wrap table.snf-table td:first-child {
-    width: 25px;
-    min-width: 25px;
+    width: clamp(25px, 4vw, 55px);
+    min-width: clamp(25px, 4vw, 55px);
   }
 
   table {
