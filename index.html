@@ -362,9 +362,8 @@
     font-weight: 700;
     color: var(--text);
     letter-spacing: 0.5px;
-    white-space: normal;
+    white-space: nowrap;
     overflow: hidden;
-    word-break: break-word;
     max-width: 100%;
     display: block;
   }
@@ -1183,6 +1182,7 @@ function goToOgretmen(oIdx) {
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 function renderSuan() {
+  setTimeout(fitCellText, 50);
   const grid = document.getElementById('suan-grid');
   const label = document.getElementById('suan-label');
   const cur = getCurrentLesson();
@@ -1731,15 +1731,31 @@ renderSuan();
 setInterval(() => {
   if (document.getElementById('panel-suan').classList.contains('active')) renderSuan();
 }, 30000);
-</script>
 
-<script>
+function fitCellText() {
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.cell-ders, .cell-ogr, .cell-snf, .time-label, .day-label').forEach(el => {
+      el.style.fontSize = '';
+      const parent = el.parentElement;
+      if (!parent) return;
+      const maxW = parent.clientWidth - 8;
+      if (maxW <= 0) return;
+      let size = parseFloat(getComputedStyle(el).fontSize);
+      let attempts = 0;
+      while (el.scrollWidth > maxW && size > 7 && attempts < 20) {
+        size -= 0.5;
+        el.style.fontSize = size + 'px';
+        attempts++;
+      }
+    });
+  });
+}
+
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
   document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
   localStorage.setItem('fl-theme', isLight ? 'light' : 'dark');
 }
-// Kayıtlı temayı uygula
 (function() {
   const saved = localStorage.getItem('fl-theme');
   if (saved === 'light') {
@@ -1749,8 +1765,9 @@ function toggleTheme() {
       if (btn) btn.textContent = '🌙';
     });
   }
-  // Koyu modda buton ☀️ olarak başlasın (zaten HTML'de ☀️)
 })();
+window.addEventListener('resize', fitCellText);
 </script>
+
 </body>
 </html>
