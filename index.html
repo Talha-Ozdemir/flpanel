@@ -18,7 +18,7 @@
     --muted: #64748b;
     --highlight: rgba(110,231,183,0.08);
     --card: #161622;
-    --cell-bg: rgba(0,231,0,0.001);
+    --cell-bg: rgba(110,231,183,0.04);
     --cell-border: rgba(110,231,183,0.12);
     --chip-selected-bg: rgba(110,231,183,0.15);
     --chip-selected-border: rgba(110,231,183,0.4);
@@ -29,7 +29,7 @@
   :root.light {
     --bg: #edeae4;
     --surface: #e4e0d9;
-    --card: #f5f2ee;
+    --card: #e8e4dd;
     --border: #cdc8c0;
     --text: #1a1612;
     --muted: #6e6558;
@@ -572,8 +572,8 @@
   }
 
   .suan-card {
-    background: var(--cell-bg);
-    border: 1px solid var(--cell-border);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 2px;
     padding: 16px 18px;
   }
@@ -582,6 +582,10 @@
     background: var(--cell-current-bg);
     outline: 1px solid var(--cell-current-outline);
     outline-offset: -1px;
+  }
+  .suan-card.has-ders {
+    background: var(--cell-bg);
+    border-color: var(--cell-border);
   }
   .suan-card.clickable {
     cursor: pointer;
@@ -1204,7 +1208,7 @@ function renderSuan() {
     let html = '';
     for (let i = 0; i < SINIFLAR.length; i++) {
       const [dIdx, oIdx] = program[i][cur.gun][cur.saat];
-      html += `<div class="suan-card current-time clickable" onclick="goToSinif(${i})" title="${SINIFLAR[i]} programına git">
+      html += `<div class="suan-card current-time has-ders clickable" onclick="goToSinif(${i})" title="${SINIFLAR[i]} programına git">
         <div class="suan-sinif">${SINIFLAR[i]}</div>
         <div class="suan-ders d${dIdx}">${dersler[dIdx]}</div>
         <div class="suan-ogr">${ogretmenler[oIdx][0]}</div>
@@ -1223,7 +1227,7 @@ function renderSuan() {
           break;
         }
       }
-      html += `<div class="suan-card ${foundSinif !== null ? 'current-time' : ''} clickable" onclick="goToOgretmen(${oIdx})" title="${ogretmenler[oIdx][0]} programına git">
+      html += `<div class="suan-card ${foundSinif !== null ? 'current-time has-ders' : ''} clickable" onclick="goToOgretmen(${oIdx})" title="${ogretmenler[oIdx][0]} programına git">
         <div class="suan-sinif">${ogretmenler[oIdx][1]}</div>
         <div class="suan-ders" style="color:var(--text);font-size:0.78rem;">${ogretmenler[oIdx][0]}</div>
         <div class="suan-ogr">${foundSinif !== null
