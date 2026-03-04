@@ -358,7 +358,7 @@
   }
 
   .cell-ders {
-    font-size: clamp(0.5rem, 1.1vw, 1rem);
+    font-size: clamp(0.5rem, 1.1vw, 2rem);
     font-weight: 700;
     color: var(--text);
     letter-spacing: 0.5px;
@@ -370,7 +370,7 @@
   }
 
   .cell-ogr {
-    font-size: 0.58rem;
+    font-size: clamp(0.5rem, 1.1vw, 2rem);
     color: var(--muted);
     letter-spacing: 0.5px;
     white-space: nowrap;
@@ -392,7 +392,7 @@
   }
 
   .time-label {
-    font-size: 0.58rem;
+    font-size: clamp(0.5rem, 1.1vw, 2rem);
     color: var(--accent);
     letter-spacing: 0.5px;
     padding: 10px 10px 4px;
@@ -401,7 +401,7 @@
   }
 
   .day-label {
-    font-size: clamp(0.56rem, 1.4vw, 0.75rem);
+    font-size: clamp(0.5rem, 1.1vw, 2rem);
     font-weight: 700;
     color: var(--text);
     padding: 4px 10px 10px;
@@ -1484,7 +1484,7 @@ function renderGenel() {
           }).join('')}
         </tr></thead><tbody>`;
       for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
-        html += `<tr><td><span class="day-label" style="padding:6px 4px;font-size:clamp(0.5rem,1.1vw,0.65rem);">${ogretmenler[oIdx][0]}</span></td>`;
+        html += `<tr><td><span class="day-label" style="padding:6px 4px;font-size:clamp(0.5rem,1.1vw,2rem);">${ogretmenler[oIdx][0]}</span></td>`;
         for (let g of gunler) {
           const isCur = cur && cur.gun === g && cur.saat === s;
           let foundSinif = null, foundDers = null;
@@ -1597,7 +1597,7 @@ function renderGenel() {
       }).join('')}
     </tr></thead><tbody>`;
   for (let i = 0; i < SINIFLAR.length; i++) {
-    html += `<tr><td><span class="day-label" style="padding:10px 4px;font-size:clamp(0.5rem,1.1vw,0.65rem);">${SINIFLAR[i]}</span></td>`;
+    html += `<tr><td><span class="day-label" style="padding:10px 4px;font-size:clamp(0.5rem,1.1vw,2rem);">${SINIFLAR[i]}</span></td>`;
     for (let g of gunler) {
       const [dIdx, oIdx] = program[i][g][s];
       const isCur = cur && cur.gun === g && cur.saat === s;
