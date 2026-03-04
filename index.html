@@ -358,7 +358,7 @@
   }
 
   .cell-ders {
-    font-size: clamp(0.5rem, 1.1vw, 2rem);
+    font-size: clamp(0.5rem, 2vw, 1.4rem);
     font-weight: 700;
     color: var(--text);
     letter-spacing: 0.5px;
@@ -370,7 +370,7 @@
   }
 
   .cell-ogr {
-    font-size: clamp(0.5rem, 1.1vw, 2rem);
+    font-size: clamp(0.44rem, 1.6vw, 1.1rem);
     color: var(--muted);
     letter-spacing: 0.5px;
     white-space: nowrap;
@@ -381,7 +381,7 @@
   }
 
   .cell-snf {
-    font-size: 0.62rem;
+    font-size: clamp(0.44rem, 1.6vw, 1.1rem);
     color: var(--accent2);
     font-weight: 700;
     white-space: nowrap;
@@ -392,7 +392,7 @@
   }
 
   .time-label {
-    font-size: clamp(0.5rem, 1.1vw, 2rem);
+    font-size: clamp(0.44rem, 1.6vw, 1.1rem);
     color: var(--accent);
     letter-spacing: 0.5px;
     padding: 10px 10px 4px;
@@ -401,7 +401,7 @@
   }
 
   .day-label {
-    font-size: clamp(0.5rem, 1.1vw, 2rem);
+    font-size: clamp(0.5rem, 2vw, 1.4rem);
     font-weight: 700;
     color: var(--text);
     padding: 4px 10px 10px;
@@ -709,13 +709,13 @@
     .clock-date { font-size: clamp(0.45rem, 1.2vw, 0.6rem); }
 
     /* Nav */
-    .nav-btn { padding: clamp(8px,1.5vw,12px) clamp(6px,1.5vw,14px); font-size: clamp(0.62rem,1.2vw,0.65rem); letter-spacing: 0; }
+    .nav-btn { padding: clamp(8px,1.5vw,12px) clamp(6px,1.5vw,14px); font-size: clamp(0.62rem,1.4vw,1.1rem); letter-spacing: 0; }
 
     /* Layout */
     .panel { padding: clamp(12px,3vw,28px) clamp(6px,2vw,16px); }
     .container { padding: 0 clamp(2px,1vw,8px); }
     .section-title { font-size: clamp(0.9rem,3vw,1.3rem); }
-    .chip { font-size: clamp(0.6rem,1.1vw,0.62rem); padding: clamp(4px,0.8vw,7px) clamp(7px,1.5vw,14px); }
+    .chip { font-size: clamp(0.6rem,1.3vw,1rem); padding: clamp(4px,0.8vw,7px) clamp(7px,1.5vw,14px); }
     select { font-size: clamp(0.68rem,1.3vw,0.72rem); }
 
     /* Tablo — tamamen dinamik */
@@ -1484,7 +1484,7 @@ function renderGenel() {
           }).join('')}
         </tr></thead><tbody>`;
       for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
-        html += `<tr><td><span class="day-label" style="padding:6px 4px;font-size:clamp(0.5rem,1.1vw,2rem);">${ogretmenler[oIdx][0]}</span></td>`;
+        html += `<tr><td><span class="day-label" style="padding:6px 4px;font-size:clamp(0.5rem,1.3vw,1rem);">${ogretmenler[oIdx][0]}</span></td>`;
         for (let g of gunler) {
           const isCur = cur && cur.gun === g && cur.saat === s;
           let foundSinif = null, foundDers = null;
@@ -1597,7 +1597,7 @@ function renderGenel() {
       }).join('')}
     </tr></thead><tbody>`;
   for (let i = 0; i < SINIFLAR.length; i++) {
-    html += `<tr><td><span class="day-label" style="padding:10px 4px;font-size:clamp(0.5rem,1.1vw,2rem);">${SINIFLAR[i]}</span></td>`;
+    html += `<tr><td><span class="day-label" style="padding:10px 4px;font-size:clamp(0.5rem,1.3vw,1rem);">${SINIFLAR[i]}</span></td>`;
     for (let g of gunler) {
       const [dIdx, oIdx] = program[i][g][s];
       const isCur = cur && cur.gun === g && cur.saat === s;
