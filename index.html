@@ -1189,7 +1189,7 @@ function renderSuan() {
     const now = new Date();
     const dow = now.getDay();
     label.textContent = (dow === 0 || dow === 6) ? 'Bugün okul yok (hafta sonu)' : 'Şu an ders yok';
-    grid.innerHTML = '<div class="empty">Ders saati dışındasınız.</div>';
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;width:100%;text-align:center;">Ders saati dışındasınız.</div>';
     return;
   }
   if (cur.tenefus) {
