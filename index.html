@@ -358,18 +358,19 @@
   }
 
   .cell-ders {
-    font-size: clamp(0.5rem, 2vw, 1.4rem);
+    font-size: clamp(0.48rem, 1.1vw, 0.78rem);
     font-weight: 700;
     color: var(--text);
     letter-spacing: 0.5px;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
+    overflow-wrap: break-word;
     max-width: 100%;
     display: block;
   }
 
   .cell-ogr {
-    font-size: clamp(0.44rem, 1.6vw, 1.1rem);
+    font-size: clamp(0.42rem, 0.95vw, 0.65rem);
     color: var(--muted);
     letter-spacing: 0.5px;
     white-space: nowrap;
@@ -380,7 +381,7 @@
   }
 
   .cell-snf {
-    font-size: clamp(0.44rem, 1.6vw, 1.1rem);
+    font-size: clamp(0.42rem, 0.95vw, 0.65rem);
     color: var(--accent2);
     font-weight: 700;
     white-space: nowrap;
@@ -391,7 +392,7 @@
   }
 
   .time-label {
-    font-size: clamp(0.44rem, 1.6vw, 1.1rem);
+    font-size: clamp(0.42rem, 0.9vw, 0.62rem);
     color: var(--accent);
     letter-spacing: 0.5px;
     padding: 10px 10px 4px;
@@ -400,7 +401,7 @@
   }
 
   .day-label {
-    font-size: clamp(0.5rem, 2vw, 1.4rem);
+    font-size: clamp(0.42rem, 0.9vw, 0.62rem);
     font-weight: 700;
     color: var(--text);
     padding: 4px 10px 10px;
@@ -736,13 +737,13 @@
       gap: 1px;
     }
     .cell-ders {
-      font-size: clamp(0.6rem, 1.3vw, 0.68rem);
+      font-size: clamp(0.48rem, 1.1vw, 0.78rem);
       letter-spacing: 0;
       white-space: normal;
-      word-break: break-word;
+    overflow-wrap: break-word;
     }
     .cell-ogr {
-      font-size: clamp(0.54rem, 1vw, 0.56rem);
+      font-size: clamp(0.42rem, 0.95vw, 0.65rem);
       letter-spacing: 0;
       white-space: nowrap;
       overflow: hidden;
@@ -750,16 +751,16 @@
       display: block;
     }
     .cell-snf {
-      font-size: clamp(0.56rem, 1.1vw, 0.58rem);
+      font-size: clamp(0.42rem, 0.95vw, 0.65rem);
       letter-spacing: 0;
     }
     .time-label {
-      font-size: clamp(0.52rem, 0.9vw, 0.52rem);
+      font-size: clamp(0.42rem, 0.9vw, 0.62rem);
       padding: clamp(3px,0.6vw,8px) clamp(2px,0.4vw,6px) clamp(1px,0.3vw,3px);
       letter-spacing: 0;
     }
     .day-label {
-      font-size: clamp(0.54rem, 1vw, 0.56rem);
+      font-size: clamp(0.42rem, 0.9vw, 0.62rem);
       padding: clamp(1px,0.3vw,3px) clamp(2px,0.4vw,6px) clamp(3px,0.6vw,8px);
     }
 
@@ -1182,7 +1183,6 @@ function goToOgretmen(oIdx) {
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 function renderSuan() {
-  setTimeout(fitCellText, 50);
   const grid = document.getElementById('suan-grid');
   const label = document.getElementById('suan-label');
   const cur = getCurrentLesson();
@@ -1225,7 +1225,7 @@ function renderSuan() {
       }
       html += `<div class="suan-card ${foundSinif !== null ? 'current-time has-ders' : ''} clickable" onclick="goToOgretmen(${oIdx})" title="${ogretmenler[oIdx][0]} programına git">
         <div class="suan-sinif">${ogretmenler[oIdx][1]}</div>
-        <div class="suan-ders" style="color:var(--text);font-size:0.78rem;">${ogretmenler[oIdx][0]}</div>
+        <div class="suan-ders" style="color:var(--text);font-size:clamp(0.5rem,1.2vw,0.78rem);">${ogretmenler[oIdx][0]}</div>
         <div class="suan-ogr">${foundSinif !== null
           ? `<span class="d${foundDers}">${dersler[foundDers]}</span> — <span style="color:var(--accent2)">${SINIFLAR[foundSinif]}</span>`
           : '<span style="color:var(--muted)">Boş</span>'}</div>
@@ -1480,7 +1480,7 @@ function renderGenel() {
           <th>Öğretmen</th>
           ${gunler.map(g => {
             const [gS, gE] = getSaatLabel(g, s);
-            return `<th>${GUNLER[g]}<br><span style="font-size:0.55rem;font-weight:400;color:var(--muted)">${gS}–${gE}</span></th>`;
+            return `<th>${GUNLER[g]}<br><span style="font-size:clamp(0.42rem,0.9vw,0.6rem);font-weight:400;color:var(--muted)">${gS}–${gE}</span></th>`;
           }).join('')}
         </tr></thead><tbody>`;
       for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
@@ -1593,7 +1593,7 @@ function renderGenel() {
       <th>Sınıf</th>
       ${gunler.map(g => {
         const [gS, gE] = getSaatLabel(g, s);
-        return `<th>${GUNLER[g]}<br><span style="font-size:0.55rem;font-weight:400;color:var(--muted)">${gS}–${gE}</span></th>`;
+        return `<th>${GUNLER[g]}<br><span style="font-size:clamp(0.42rem,0.9vw,0.6rem);font-weight:400;color:var(--muted)">${gS}–${gE}</span></th>`;
       }).join('')}
     </tr></thead><tbody>`;
   for (let i = 0; i < SINIFLAR.length; i++) {
@@ -1732,24 +1732,6 @@ setInterval(() => {
   if (document.getElementById('panel-suan').classList.contains('active')) renderSuan();
 }, 30000);
 
-function fitCellText() {
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.cell-ders, .cell-ogr, .cell-snf, .time-label, .day-label').forEach(el => {
-      el.style.fontSize = '';
-      const parent = el.parentElement;
-      if (!parent) return;
-      const maxW = parent.clientWidth - 8;
-      if (maxW <= 0) return;
-      let size = parseFloat(getComputedStyle(el).fontSize);
-      let attempts = 0;
-      while (el.scrollWidth > maxW && size > 7 && attempts < 20) {
-        size -= 0.5;
-        el.style.fontSize = size + 'px';
-        attempts++;
-      }
-    });
-  });
-}
 
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
@@ -1766,7 +1748,6 @@ function toggleTheme() {
     });
   }
 })();
-window.addEventListener('resize', fitCellText);
 </script>
 
 </body>
