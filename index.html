@@ -24,19 +24,34 @@
     --bg: #edeae4;
     --surface: #e4e0d9;
     --card: #f5f2ee;
-    --border: #ccc8c0;
+    --border: #cdc8c0;
     --text: #1a1612;
     --muted: #6e6558;
-    --highlight: rgba(5,120,85,0.1);
+    --highlight: rgba(13,122,95,0.07);
     --accent: #0d7a5f;
     --accent2: #3730a3;
     --accent3: #be185d;
-    --grid-line: rgba(5,120,85,0.08);
+    --grid-line: rgba(5,120,85,0.015);
+    --cell-current-bg: rgba(13,122,95,0.08);
+    --cell-current-outline: rgba(13,122,95,0.3);
+    --chip-selected-bg: rgba(13,122,95,0.1);
+    --chip-selected-border: rgba(13,122,95,0.32);
+    --cell-bg: rgba(110,210,170,0.12);
+    --cell-border: rgba(110,210,170,0.3);
   }
 
   /* Açık temada ders renkleri koyu ve doygun olsun */
   :root.light [class^="d"], :root.light [class*=" d"] {
     filter: brightness(0.55) saturate(1.6);
+  }
+
+  :root {
+    --cell-current-bg: rgba(110,231,183,0.1);
+    --cell-current-outline: rgba(110,231,183,0.4);
+    --chip-selected-bg: rgba(110,231,183,0.15);
+    --chip-selected-border: rgba(110,231,183,0.4);
+    --cell-bg: rgba(110,231,183,0.04);
+    --cell-border: rgba(110,231,183,0.12);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,8 +70,8 @@
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(var(--grid-line, rgba(110,231,183,0.03)) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line, rgba(110,231,183,0.03)) 1px, transparent 1px);
+      linear-gradient(var(--grid-line, rgba(110,231,183,0.015)) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line, rgba(110,231,183,0.015)) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
     z-index: 0;
@@ -227,7 +242,7 @@
   }
 
   .chip.selected {
-    background: rgba(110,231,183,0.12);
+    background: var(--chip-selected-bg);
     border-color: var(--accent);
     color: var(--accent);
   }
@@ -258,6 +273,39 @@
     overflow-x: auto;
     border: 1px solid var(--border);
     border-radius: 4px;
+  }
+
+  .schedule-wrap table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  /* Saat sütunu dar, diğerleri eşit */
+  .schedule-wrap table th:first-child,
+  .schedule-wrap table td:first-child {
+    width: 60px;
+    min-width: 60px;
+    text-align: left;
+    padding: 0;
+  }
+  .schedule-wrap table td:first-child .cell,
+  .schedule-wrap table td:first-child .day-label,
+  .schedule-wrap table td:first-child .time-label {
+    padding-left: 4px;
+  }
+
+  /* Öğretmen listesi — ilk sütun geniş */
+  .schedule-wrap table.ogr-table th:first-child,
+  .schedule-wrap table.ogr-table td:first-child {
+    width: 108px;
+    min-width: 108px;
+  }
+
+  /* Sınıf listesi — ilk sütun dar */
+  .schedule-wrap table.snf-table th:first-child,
+  .schedule-wrap table.snf-table td:first-child {
+    width: 25px;
+    min-width: 25px;
   }
 
   table {
@@ -301,13 +349,17 @@
     gap: 3px;
     cursor: default;
     transition: background 0.15s;
+    background: var(--cell-bg);
+    border: 1px solid var(--cell-border);
+    border-radius: 3px;
+    margin: 3px;
   }
 
   .cell:hover { background: var(--highlight); }
 
   .cell.current {
-    background: rgba(110,231,183,0.1);
-    outline: 2px solid rgba(110,231,183,0.4);
+    background: var(--cell-current-bg);
+    outline: 2px solid var(--cell-current-outline);
     outline-offset: -2px;
   }
 
@@ -316,34 +368,51 @@
     font-weight: 700;
     color: var(--text);
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
   }
 
   .cell-ogr {
     font-size: 0.58rem;
     color: var(--muted);
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
   }
 
   .cell-snf {
     font-size: 0.62rem;
     color: var(--accent2);
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
   }
 
   .time-label {
     font-size: 0.58rem;
     color: var(--accent);
     letter-spacing: 0.5px;
-    padding: 10px 14px 4px;
+    padding: 10px 10px 4px;
     display: block;
+    white-space: nowrap;
   }
 
   .day-label {
-    font-size: 0.65rem;
+    font-size: clamp(0.56rem, 1.4vw, 0.75rem);
     font-weight: 700;
     color: var(--text);
-    padding: 4px 14px 10px;
+    padding: 4px 10px 10px;
     display: block;
+    white-space: nowrap;
   }
 
   /* NOW INDICATOR */
@@ -351,8 +420,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(110,231,183,0.12);
-    border: 1px solid rgba(110,231,183,0.3);
+    background: var(--chip-selected-bg);
+    border: 1px solid var(--chip-selected-border);
     border-radius: 2px;
     padding: 8px 16px;
     font-size: 0.65rem;
@@ -397,7 +466,7 @@
   }
 
   .teacher-card:hover { background: var(--highlight); }
-  .teacher-card.selected { background: rgba(110,231,183,0.08); }
+  .teacher-card.selected { background: var(--cell-current-bg); }
 
   .teacher-name {
     font-size: 0.72rem;
@@ -514,8 +583,8 @@
   }
 
   .suan-card.current-time {
-    background: rgba(110,231,183,0.06);
-    outline: 1px solid rgba(110,231,183,0.25);
+    background: var(--cell-current-bg);
+    outline: 1px solid var(--cell-current-outline);
     outline-offset: -1px;
   }
   .suan-card.clickable {
@@ -523,8 +592,8 @@
     transition: background 0.15s, outline-color 0.15s, transform 0.1s;
   }
   .suan-card.clickable:hover {
-    background: rgba(110,231,183,0.12);
-    outline: 1px solid rgba(110,231,183,0.5);
+    background: var(--chip-selected-bg);
+    outline: 1px solid var(--chip-selected-border);
     outline-offset: -1px;
     transform: translateY(-1px);
   }
@@ -1408,7 +1477,7 @@ function renderGenel() {
     // Tek saat seçiliyse: tüm öğretmenler tek tabloda
     if (genelSaat !== -1) {
       const s = saatlerList[0];
-      let html = `<div class="schedule-wrap"><table>
+      let html = `<div class="schedule-wrap"><table class="ogr-table">
         <thead><tr>
           <th>Öğretmen</th>
           ${gunler.map(g => {
@@ -1417,7 +1486,7 @@ function renderGenel() {
           }).join('')}
         </tr></thead><tbody>`;
       for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
-        html += `<tr><td><span class="day-label" style="padding:8px 14px;font-size:0.65rem;">${ogretmenler[oIdx][0]}</span></td>`;
+        html += `<tr><td><span class="day-label" style="padding:6px 4px;font-size:clamp(0.52rem,1.3vw,0.65rem);">${ogretmenler[oIdx][0]}</span></td>`;
         for (let g of gunler) {
           const isCur = cur && cur.gun === g && cur.saat === s;
           let foundSinif = null, foundDers = null;
@@ -1521,7 +1590,7 @@ function renderGenel() {
   const [nStart, nEnd] = SAATLER_NORMAL[s];
   const [cStart] = SAATLER_CUMA[s];
   const cumaFarkli = cStart !== nStart;
-  let html = `<div class="schedule-wrap"><table>
+  let html = `<div class="schedule-wrap"><table class="snf-table">
     <thead><tr>
       <th>Sınıf</th>
       ${gunler.map(g => {
@@ -1530,7 +1599,7 @@ function renderGenel() {
       }).join('')}
     </tr></thead><tbody>`;
   for (let i = 0; i < SINIFLAR.length; i++) {
-    html += `<tr><td><span class="day-label" style="padding:10px 14px;">${SINIFLAR[i]}</span></td>`;
+    html += `<tr><td><span class="day-label" style="padding:10px 4px;font-size:clamp(0.52rem,1.3vw,0.65rem);">${SINIFLAR[i]}</span></td>`;
     for (let g of gunler) {
       const [dIdx, oIdx] = program[i][g][s];
       const isCur = cur && cur.gun === g && cur.saat === s;
