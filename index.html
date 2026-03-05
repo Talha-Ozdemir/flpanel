@@ -1123,6 +1123,18 @@
       color:#bbb;
       margin-top:0.5pt;
     }
+    /* Cuma saati etiketi — ders kutusunun üzerinde */
+    .pt-cuma-tag {
+      display:block;
+      font-size:5.5pt;
+      font-weight:700;
+      color:#555;
+      letter-spacing:0.3px;
+      margin-bottom:1.5pt;
+      padding:0.5pt 2pt;
+      background:#f0f0f0;
+      border-left:1.5pt solid #888;
+    }
 
     /* Ders hücresi içeriği */
     .pt-d {
@@ -1237,13 +1249,14 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-      background:#111;
+      background:#fff;
+      border:0.4mm solid #000;
       margin-top:2mm;
       padding:3mm 5mm;
     }
     .pk-label {
       font-size:6pt;
-      color:#ccc;
+      color:#888;
       letter-spacing:2px;
       text-transform:uppercase;
     }
@@ -1251,7 +1264,7 @@
       font-family:'Syne', sans-serif;
       font-size:14pt;
       font-weight:900;
-      color:#fff;
+      color:#000;
     }
 
     /* Karne satırları kısa (tek satır içerik) */
@@ -2651,9 +2664,7 @@ function buildPrintTable(gunler, saatler, cellFn) {
       saatAralik = `${gS}–${gE}`;
     } else {
       saatAralik = `${nS}–${nE}`;
-      if (hasCuma) {
-        cumaSpan = `<span class="pt-sc">C: ${cS}–${cE}</span>`;
-      }
+      // Cuma saati artık ders kutusunun üzerinde gösteriliyor
     }
 
     const saatHucre = `<td class="pt-s">
@@ -2662,7 +2673,20 @@ function buildPrintTable(gunler, saatler, cellFn) {
       ${cumaSpan}
     </td>`;
 
-    const dersHucreler = gunler.map(g => cellFn(g, s)).join('');
+    const dersHucreler = gunler.map(g => {
+      const raw = cellFn(g, s); // <td>...</td>
+      // Cuma günü ve saat farklıysa ders kutusunun içine saat etiketi ekle
+      if (g === 4) {
+        const [gS, gE] = getSaatLabel(4, s);
+        const [nS] = SAATLER_NORMAL[s];
+        if (gS !== nS) {
+          // td içindeki ilk içeriğin önüne ekle
+          const cumaTag = `<span class="pt-cuma-tag">${gS}–${gE}</span>`;
+          return raw.replace('<td>', `<td>${cumaTag}`).replace('<td class="pt-empty">', `<td class="pt-empty">`);
+        }
+      }
+      return raw;
+    }).join('');
     tbody += `<tr>${saatHucre}${dersHucreler}</tr>`;
   }
   tbody += '</tbody>';
@@ -2783,16 +2807,27 @@ function printOgretmen(ogrIdx, withList) {
 }
 
 function printGenel(withList) {
-  const gunler = [0,1,2,3,4];
-  const saatler = [0,1,2,3,4,5,6,7];
+  // Aktif filtreleri kullan
+  const gunler = genelGun === -1 ? [0,1,2,3,4] : [genelGun];
+  const saatler = genelSaat === -1 ? [0,1,2,3,4,5,6,7] : [genelSaat];
+  const orientation = withList ? 'portrait' : 'landscape';
   let pages = '';
+
+  const filtreSuffix = (genelGun !== -1 || genelSaat !== -1)
+    ? `_${genelGun !== -1 ? GUNLER[genelGun] : ''}${genelSaat !== -1 ? `_${genelSaat+1}Saat` : ''}`
+    : '';
 
   if (genelMod === 'sinif') {
     for (let idx = 0; idx < SINIFLAR.length; idx++) {
+      const altBaslik = genelGun !== -1 || genelSaat !== -1
+        ? `${genelGun !== -1 ? GUNLER[genelGun] : 'Tüm Günler'} — ${genelSaat !== -1 ? `${genelSaat+1}. Saat` : 'Tüm Saatler'}`
+        : withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
+
       const tablo = buildPrintTable(gunler, saatler, (g, s) => {
         const [dIdx, oIdx] = program[idx][g][s];
         return `<td><b class="pt-d">${dersler[dIdx]}</b><span class="pt-o">${ogretmenler[oIdx][0]}</span></td>`;
       });
+
       let listHtml = '';
       if (withList) {
         const ogrSet = new Map();
@@ -2811,13 +2846,18 @@ function printGenel(withList) {
             <span class="pl-branch">${ogretmenler[oIdx][1]}</span></div></div>`).join('')}
           </div>`;
       }
+
       pages += `<div class="print-page">
-        ${printHeader(`${SINIFLAR[idx]} Ders Programı`, withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı')}
+        ${printHeader(`${SINIFLAR[idx]} Ders Programı`, altBaslik)}
         ${tablo}${listHtml}
       </div>`;
     }
   } else {
     for (let ogrIdx = 0; ogrIdx < ogretmenler.length; ogrIdx++) {
+      const altBaslik = genelGun !== -1 || genelSaat !== -1
+        ? `${ogretmenler[ogrIdx][1]} — ${genelGun !== -1 ? GUNLER[genelGun] : 'Tüm Günler'} / ${genelSaat !== -1 ? `${genelSaat+1}. Saat` : 'Tüm Saatler'}`
+        : `${ogretmenler[ogrIdx][1]}${withList ? ' — Program ve Sınıf Listesi' : ' — Ders Programı'}`;
+
       const tablo = buildPrintTable(gunler, saatler, (g, s) => {
         for (let i = 0; i < SINIFLAR.length; i++) {
           const [dIdx, pOgrIdx] = program[i][g][s];
@@ -2826,6 +2866,7 @@ function printGenel(withList) {
         }
         return `<td class="pt-empty">—</td>`;
       });
+
       let listHtml = '';
       if (withList) {
         const snfSet = new Set();
@@ -2840,8 +2881,9 @@ function printGenel(withList) {
             <span class="pl-name">${SINIFLAR[i]}</span></div></div>`).join('')}
           </div>`;
       }
+
       pages += `<div class="print-page">
-        ${printHeader(ogretmenler[ogrIdx][0], `${ogretmenler[ogrIdx][1]}${withList ? ' — Program ve Sınıf Listesi' : ' — Ders Programı'}`)}
+        ${printHeader(ogretmenler[ogrIdx][0], altBaslik)}
         ${tablo}${listHtml}
       </div>`;
     }
@@ -2849,9 +2891,10 @@ function printGenel(withList) {
 
   const root = document.getElementById('print-root');
   root.innerHTML = pages;
-  doPrintRaw(withList ? 'portrait' : 'landscape',
-    `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}_Programlari`);
+  doPrintRaw(orientation,
+    `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}_Programlari${filtreSuffix}`);
 }
+
 
 function printKarne() {
   const sinifEl = document.getElementById('karne-sinif');
@@ -2868,21 +2911,28 @@ function printKarne() {
     herhangiVar = true;
     const avg = parts.reduce((a,b) => a+b, 0) / parts.length;
     tsaat += d[dIdx]; tnot += d[dIdx] * avg;
+
+    // Web'deki basamak seçimini oku (_karneDecimals)
+    const dec = (window._karneDecimals && window._karneDecimals[dIdx]) || 4;
+
     rows += `<tr>
       <td><b class="pt-d">${dersler[dIdx]}</b></td>
       <td style="text-align:center;vertical-align:middle;font-size:6.5pt;color:#888;">${parts.length} not</td>
-      <td style="text-align:right;vertical-align:middle;font-size:7pt;font-weight:700;">${avg.toFixed(4)}</td>
+      <td style="text-align:right;vertical-align:middle;font-size:8pt;font-weight:700;">${avg.toFixed(dec)}</td>
     </tr>`;
   }
   if (!herhangiVar) return;
-  const genel = (tnot / tsaat).toFixed(4);
+  const genel = tnot / tsaat;
+
+  // Genel ortalama basamak sayısını da web'den al
+  const genelDec = window._karneGenelDecimal || 4;
 
   const body = `
     <table class="pt pt-karne">
       <colgroup>
         <col style="width:auto">
         <col style="width:28mm">
-        <col style="width:32mm">
+        <col style="width:35mm">
       </colgroup>
       <thead><tr>
         <th style="text-align:left;padding-left:4pt;">DERS</th>
@@ -2893,7 +2943,7 @@ function printKarne() {
     </table>
     <div class="pk-avg">
       <span class="pk-label">AĞIRLIKLI ORTALAMA</span>
-      <span class="pk-num">${genel}</span>
+      <span class="pk-num">${genel.toFixed(genelDec)}</span>
     </div>`;
 
   doPrint(
