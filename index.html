@@ -940,6 +940,12 @@
   @media print {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
+    html, body {
+      background: #fff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
     body > *:not(#print-root) { display: none !important; }
     #print-root { display: block !important; }
 
@@ -953,8 +959,9 @@
 
     .print-page {
       page-break-after: always;
-      padding: 20mm 15mm;
+      padding: 10mm 10mm;
       background: #fff;
+      box-sizing: border-box;
     }
     .print-page:last-child { page-break-after: avoid; }
 
@@ -962,86 +969,88 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid #000;
-      padding-bottom: 8px;
-      margin-bottom: 16px;
+      border-bottom: 1.5px solid #000;
+      padding-bottom: 5px;
+      margin-bottom: 8px;
     }
     .print-logo {
       font-family: 'Syne', sans-serif;
-      font-size: 22pt;
+      font-size: 16pt;
       font-weight: 900;
       letter-spacing: 2px;
       color: #000;
     }
     .print-school {
-      font-size: 7pt;
-      letter-spacing: 2px;
+      font-size: 6pt;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
-      color: #333;
+      color: #444;
       text-align: right;
-      line-height: 1.6;
+      line-height: 1.5;
     }
     .print-title {
       font-family: 'Syne', sans-serif;
-      font-size: 14pt;
+      font-size: 11pt;
       font-weight: 800;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       color: #000;
     }
     .print-sub {
-      font-size: 7pt;
+      font-size: 6pt;
       color: #666;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
 
     /* Tablo */
     .print-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 7pt;
+      font-size: 6pt;
+      table-layout: fixed;
     }
     .print-table th {
-      background: #000;
+      background: #222;
       color: #fff;
-      padding: 5px 6px;
+      padding: 3px 4px;
       text-align: center;
-      font-size: 7pt;
-      letter-spacing: 1px;
+      font-size: 6pt;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
     }
     .print-table td {
-      border: 1px solid #ccc;
-      padding: 5px 6px;
+      border: 1px solid #ddd;
+      padding: 3px 4px;
       vertical-align: top;
-      min-width: 60px;
     }
     .print-table td:first-child {
-      background: #f5f5f5;
+      background: #f8f8f8;
       text-align: center;
-      font-size: 6.5pt;
-      min-width: 45px;
+      font-size: 5.5pt;
+      width: 48px;
       white-space: nowrap;
     }
     .print-cell-ders {
       font-weight: 700;
-      font-size: 7pt;
+      font-size: 6pt;
       display: block;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
+      overflow: hidden;
     }
     .print-cell-ogr {
-      font-size: 6pt;
+      font-size: 5pt;
       color: #555;
       display: block;
+      overflow: hidden;
     }
     .print-cell-snf {
-      font-size: 6pt;
+      font-size: 5.5pt;
       font-weight: 700;
       color: #333;
       display: block;
     }
-    .print-cell-empty { color: #bbb; font-size: 8pt; }
+    .print-cell-empty { color: #ccc; font-size: 7pt; }
 
     /* Öğretmen/Sınıf listesi (dikey mod) */
     .print-list-title {
@@ -2441,7 +2450,6 @@ function printSinif(idx, withList) {
 
   const tablo = buildPrintTable(gunler, saatler, (g, s) => {
     const [dIdx, oIdx] = program[idx][g][s];
-    if (dIdx === 0) return `<td><span class="print-cell-empty">—</span></td>`;
     return `<td>
       <span class="print-cell-ders">${dersler[dIdx]}</span>
       <span class="print-cell-ogr">${ogretmenler[oIdx][0]}</span>
@@ -2468,10 +2476,12 @@ function printSinif(idx, withList) {
       </div>`;
   }
 
+  const sinifFileName = `${sinifAdi.replace('/','')}_${withList ? 'Program_ve_Ogretmen_Listesi' : 'Ders_Programi'}`;
   doPrint(
     printHeader(`${sinifAdi} Ders Programı`, `${withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı'}`),
     tablo + listHtml,
-    withList ? 'portrait' : 'landscape'
+    withList ? 'portrait' : 'landscape',
+    sinifFileName
   );
 }
 
@@ -2508,10 +2518,12 @@ function printOgretmen(ogrIdx, withList) {
       </div>`;
   }
 
+  const ogrFileName = `${ogrAdi.replace(/ /g,'_')}_${withList ? 'Program_ve_Sinif_Listesi' : 'Ders_Programi'}`;
   doPrint(
     printHeader(`${ogrAdi}`, `${ogretmenler[ogrIdx][1]} — ${withList ? 'Program ve Sınıf Listesi' : 'Ders Programı'}`),
     tablo + listHtml,
-    withList ? 'portrait' : 'landscape'
+    withList ? 'portrait' : 'landscape',
+    ogrFileName
   );
 }
 
@@ -2525,7 +2537,6 @@ function printGenel(withList) {
     for (let idx = 0; idx < SINIFLAR.length; idx++) {
       const tablo = buildPrintTable(gunler, saatler, (g, s) => {
         const [dIdx, oIdx] = program[idx][g][s];
-        if (dIdx === 0) return `<td><span class="print-cell-empty">—</span></td>`;
         return `<td>
           <span class="print-cell-ders">${dersler[dIdx]}</span>
           <span class="print-cell-ogr">${ogretmenler[oIdx][0]}</span>
@@ -2595,9 +2606,10 @@ function printGenel(withList) {
     }
   }
 
+  const genelFileName = `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}_Programlari_${withList ? 'Liste_ile' : 'Tablolar'}`;
   const root = document.getElementById('print-root');
   root.innerHTML = pages;
-  doPrintRaw(withList ? 'portrait' : 'landscape');
+  doPrintRaw(withList ? 'portrait' : 'landscape', genelFileName);
 }
 
 // ---- KARNE PRINT ----
@@ -2634,21 +2646,23 @@ function printKarne() {
       <span>${genel.toFixed(4)}</span>
     </div>`;
 
+  const karneFileName = `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}`;
   doPrint(
     printHeader(`Karne — ${sinifAdi}`, 'Not Dökümü ve Ağırlıklı Ortalama'),
     body,
-    'portrait'
+    'portrait',
+    karneFileName
   );
 }
 
 // ---- PRINT ENGINE ----
-function doPrint(headerHtml, bodyHtml, orientation) {
+function doPrint(headerHtml, bodyHtml, orientation, fileName) {
   const root = document.getElementById('print-root');
   root.innerHTML = `<div class="print-page">${headerHtml}${bodyHtml}</div>`;
-  doPrintRaw(orientation);
+  doPrintRaw(orientation, fileName);
 }
 
-function doPrintRaw(orientation) {
+function doPrintRaw(orientation, fileName) {
   // Orientation için geçici style ekle
   let styleEl = document.getElementById('print-orientation-style');
   if (!styleEl) {
@@ -2658,10 +2672,17 @@ function doPrintRaw(orientation) {
   }
   styleEl.textContent = `@page { size: A4 ${orientation}; margin: 0; }`;
 
+  // Dosya adı için title geçici değiştir
+  const origTitle = document.title;
+  if (fileName) document.title = fileName;
+
   const root = document.getElementById('print-root');
   root.style.display = 'block';
   window.print();
   root.style.display = 'none';
+
+  // Title geri yükle
+  if (fileName) document.title = origTitle;
 }
 
 function toggleTheme() {
