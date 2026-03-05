@@ -937,181 +937,10 @@
   /* ============================================================
      PRINT STILLERI
   ============================================================ */
-  @media print {
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
-    html, body {
-      background: #fff !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    body > *:not(#print-root) { display: none !important; }
-    #print-root { display: block !important; }
-
-    #print-root {
-      font-family: 'Space Mono', monospace;
-      color: #000;
-      background: #fff;
-      padding: 0;
-      margin: 0;
-    }
-
-    .print-page {
-      page-break-after: always;
-      padding: 0;
-      background: #fff;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    .print-page:last-child { page-break-after: avoid; }
-
-    .print-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1.5px solid #000;
-      padding-bottom: 6px;
-      margin-bottom: 10px;
-    }
-    .print-logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 20pt;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: #000;
-    }
-    .print-school {
-      font-size: 6pt;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: #444;
-      text-align: right;
-      line-height: 1.5;
-    }
-    .print-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 13pt;
-      font-weight: 800;
-      margin-bottom: 4px;
-      color: #000;
-    }
-    .print-sub {
-      font-size: 7pt;
-      color: #666;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    /* Tablo */
-    .print-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 9pt;
-      table-layout: fixed;
-    }
-    .print-table th {
-      background: #222;
-      color: #fff;
-      padding: 5px 6px;
-      text-align: center;
-      font-size: 8pt;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-    .print-table td {
-      border: 1px solid #ccc;
-      padding: 6px 7px;
-      vertical-align: top;
-    }
-    .print-table td:first-child {
-      background: #f8f8f8;
-      text-align: center;
-      font-size: 7pt;
-      width: 55px;
-      white-space: nowrap;
-    }
-    .print-cell-ders {
-      font-weight: 700;
-      font-size: 9pt;
-      display: block;
-      margin-bottom: 1px;
-      overflow: hidden;
-    }
-    .print-cell-ogr {
-      font-size: 7.5pt;
-      color: #555;
-      display: block;
-      overflow: hidden;
-    }
-    .print-cell-snf {
-      font-size: 8pt;
-      font-weight: 700;
-      color: #333;
-      display: block;
-    }
-    .print-cell-empty { color: #ccc; font-size: 7pt; }
-    .print-table tr { page-break-inside: avoid; }
-    .print-table { page-break-inside: auto; }
-
-    /* Öğretmen/Sınıf listesi (dikey mod) */
-    .print-list-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 10pt;
-      font-weight: 800;
-      margin: 16px 0 8px;
-      padding-top: 12px;
-      border-top: 1px solid #ccc;
-    }
-    .print-list-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 6px;
-    }
-    .print-list-item {
-      border: 1px solid #ddd;
-      border-radius: 3px;
-      padding: 6px 8px;
-    }
-    .print-list-name {
-      font-size: 7pt;
-      font-weight: 700;
-      display: block;
-      margin-bottom: 2px;
-    }
-    .print-list-branch {
-      font-size: 6pt;
-      color: #666;
-      display: block;
-    }
-
-    /* Karne */
-    .print-karne-row {
-      display: grid;
-      grid-template-columns: 1fr 60px 90px;
-      padding: 5px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 8pt;
-      align-items: center;
-    }
-    .print-karne-row:last-child { border-bottom: none; }
-    .print-karne-not { text-align: center; color: #666; font-size: 7pt; }
-    .print-karne-avg { text-align: right; font-weight: 700; }
-    .print-karne-total {
-      display: grid;
-      grid-template-columns: 1fr 90px;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 3px solid #000;
-      font-size: 12pt;
-      font-weight: 800;
-      font-family: 'Syne', sans-serif;
-    }
-    .print-karne-total span:last-child { text-align: right; }
-  }
 
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -2469,53 +2298,148 @@ function closePdfModal() {
 }
 
 // ---- PRINT HEADER ----
-function printHeader(baslik, altBaslik) {
-  return `<div class="print-header">
-    <div>
-      <div class="print-logo">FL</div>
-    </div>
-    <div class="print-school">
-      ANKARA FEN LİSESİ<br>DERS PROGRAMI PANELİ
-    </div>
-  </div>
-  <div class="print-title">${baslik}</div>
-  <div class="print-sub">${altBaslik}</div>`;
+function makePdf(orientation, fileName) {
+  const { jsPDF } = window.jspdf;
+  return {
+    doc: new jsPDF({ orientation, unit: 'mm', format: 'a4' }),
+    fileName: (fileName || 'program') + '.pdf'
+  };
 }
 
-// ---- TABLO HTML ----
-function buildPrintTable(gunler, saatler, cellFn) {
-  let html = `<table class="print-table"><thead><tr>
-    <th>Saat</th>
-    ${gunler.map(g => `<th>${GUNLER[g]}</th>`).join('')}
-  </tr></thead><tbody>`;
+function addPdfHeader(doc, baslik, altBaslik) {
+  const pw = doc.internal.pageSize.getWidth();
+  // FL logosu
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.text('FL', 14, 16);
+  // Okul adı sağda
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.text('ANKARA FEN LİSESİ', pw - 14, 11, { align: 'right' });
+  doc.text('DERS PROGRAMI PANELİ', pw - 14, 15, { align: 'right' });
+  // Çizgi
+  doc.setLineWidth(0.5);
+  doc.line(14, 19, pw - 14, 19);
+  // Başlık
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text(baslik, 14, 26);
+  // Alt başlık
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(120);
+  doc.text(altBaslik.toUpperCase(), 14, 31);
+  doc.setTextColor(0);
+  return 35; // startY
+}
 
-  for (let s of saatler) {
+function addPdfTable(doc, startY, gunler, saatler, cellFn) {
+  const head = [['SAAT', ...gunler.map(g => GUNLER[g].toUpperCase())]];
+  const body = saatler.map(s => {
     const [nS, nE] = SAATLER_NORMAL[s];
-    html += `<tr><td><strong>${s+1}. Saat</strong><br>${nS}–${nE}</td>`;
-    for (let g of gunler) {
-      html += cellFn(g, s);
-    }
-    html += `</tr>`;
-  }
-  html += `</tbody></table>`;
-  return html;
+    const saatLabel = `${s+1}. Saat
+${nS}–${nE}`;
+    return [saatLabel, ...gunler.map(g => cellFn(g, s))];
+  });
+
+  doc.autoTable({
+    startY,
+    head,
+    body,
+    theme: 'grid',
+    styles: {
+      font: 'helvetica',
+      fontSize: 9,
+      cellPadding: 3,
+      valign: 'top',
+      overflow: 'linebreak',
+    },
+    headStyles: {
+      fillColor: [30, 30, 30],
+      textColor: 255,
+      fontSize: 8,
+      fontStyle: 'bold',
+      halign: 'center',
+    },
+    columnStyles: {
+      0: { halign: 'center', fontStyle: 'bold', fontSize: 7.5, cellWidth: 22 },
+    },
+    didParseCell: (data) => {
+      if (data.section === 'body' && data.column.index > 0) {
+        const raw = data.cell.raw;
+        if (raw && raw.bold) {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    },
+  });
+  return doc.lastAutoTable.finalY;
 }
 
-// ---- SINIF PRINT ----
+function addPdfList(doc, startY, items, title) {
+  const pw = doc.internal.pageSize.getWidth();
+  startY += 8;
+  // Başlık
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text(title, 14, startY);
+  doc.setLineWidth(0.3);
+  doc.line(14, startY + 2, pw - 14, startY + 2);
+  startY += 7;
+
+  // Grid: 3 sütun
+  const cols = 3;
+  const colW = (pw - 28) / cols;
+  const rowH = 10;
+  doc.setFontSize(8);
+
+  items.forEach((item, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = 14 + col * colW;
+    const y = startY + row * rowH;
+    // Kutu
+    doc.setDrawColor(200);
+    doc.rect(x, y - 4, colW - 2, rowH - 1);
+    // İsim
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.text(item.name, x + 2, y);
+    // Branş
+    if (item.branch) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(100);
+      doc.text(item.branch, x + 2, y + 3.5);
+      doc.setTextColor(0);
+    }
+  });
+}
+
+// ---- SINIF PDF ----
 function printSinif(idx, withList) {
   const sinifAdi = SINIFLAR[idx];
   const gunler = sinifGun === -1 ? [0,1,2,3,4] : [sinifGun];
   const saatler = sinifSaat === -1 ? [0,1,2,3,4,5,6,7] : [sinifSaat];
+  const orientation = withList ? 'portrait' : 'landscape';
 
-  const tablo = buildPrintTable(gunler, saatler, (g, s) => {
+  const filtreSuffix = sinifGun !== -1 || sinifSaat !== -1
+    ? `_${sinifGun !== -1 ? GUNLER[sinifGun] : ''}${sinifSaat !== -1 ? `_${sinifSaat+1}Saat` : ''}`
+    : '';
+  const fileName = `${sinifAdi.replace('/','')}_Ders_Programi${filtreSuffix}`;
+  const altBaslik = sinifGun !== -1 || sinifSaat !== -1
+    ? `${sinifGun !== -1 ? GUNLER[sinifGun] : 'Tüm Günler'} — ${sinifSaat !== -1 ? `${sinifSaat+1}. Saat` : 'Tüm Saatler'}`
+    : withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
+
+  const { doc, fileName: fn } = makePdf(orientation, fileName);
+  const startY = addPdfHeader(doc, `${sinifAdi} Ders Programı`, altBaslik);
+
+  const finalY = addPdfTable(doc, startY, gunler, saatler, (g, s) => {
     const [dIdx, oIdx] = program[idx][g][s];
-    return `<td>
-      <span class="print-cell-ders">${dersler[dIdx]}</span>
-      <span class="print-cell-ogr">${ogretmenler[oIdx][0]}</span>
-    </td>`;
+    return `${dersler[dIdx]}
+${ogretmenler[oIdx][0]}`;
   });
 
-  let listHtml = '';
   if (withList) {
     const ogrSet = new Map();
     let hasGrMzk = false;
@@ -2525,174 +2449,135 @@ function printSinif(idx, withList) {
       if (dIdx === 28) hasGrMzk = true;
     }
     if (hasGrMzk) ogrSet.set(32, ogretmenler[32][1]);
-    const sorted = [...ogrSet.entries()].sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1]));
-    listHtml = `<div class="print-list-title">Öğretmen Listesi</div>
-      <div class="print-list-grid">
-        ${sorted.map(([oIdx]) => `<div class="print-list-item">
-          <span class="print-list-name">${ogretmenler[oIdx][0]}</span>
-          <span class="print-list-branch">${ogretmenler[oIdx][1]}</span>
-        </div>`).join('')}
-      </div>`;
+    const items = [...ogrSet.entries()]
+      .sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1]))
+      .map(([oIdx]) => ({ name: ogretmenler[oIdx][0], branch: ogretmenler[oIdx][1] }));
+    addPdfList(doc, finalY, items, 'Öğretmen Listesi');
   }
 
-  const filtreSuffix = sinifGun !== -1 || sinifSaat !== -1
-    ? `_${sinifGun !== -1 ? GUNLER[sinifGun] : ''}${sinifSaat !== -1 ? `_${sinifSaat+1}Saat` : ''}`
-    : '';
-  const sinifFileName = `${sinifAdi.replace('/','')}_Ders_Programi${filtreSuffix}`;
-  const altBaslik = sinifGun !== -1 || sinifSaat !== -1
-    ? `${sinifGun !== -1 ? GUNLER[sinifGun] : 'Tüm Günler'} — ${sinifSaat !== -1 ? `${sinifSaat+1}. Saat` : 'Tüm Saatler'}`
-    : withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
-  doPrint(
-    printHeader(`${sinifAdi} Ders Programı`, altBaslik),
-    tablo + listHtml,
-    withList ? 'portrait' : 'landscape',
-    sinifFileName
-  );
+  doc.save(fn);
 }
 
-// ---- ÖĞRETMEN PRINT ----
+// ---- ÖĞRETMEN PDF ----
 function printOgretmen(ogrIdx, withList) {
   const ogrAdi = ogretmenler[ogrIdx][0];
   const gunler = ogrGun === -1 ? [0,1,2,3,4] : [ogrGun];
   const saatler = ogrSaat === -1 ? [0,1,2,3,4,5,6,7] : [ogrSaat];
-
-  const tablo = buildPrintTable(gunler, saatler, (g, s) => {
-    for (let i = 0; i < SINIFLAR.length; i++) {
-      const [dIdx, pOgrIdx] = program[i][g][s];
-      const match = pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28);
-      if (match) return `<td>
-        <span class="print-cell-snf">${SINIFLAR[i]}</span>
-        <span class="print-cell-ders">${dersler[dIdx]}</span>
-      </td>`;
-    }
-    return `<td><span class="print-cell-empty">—</span></td>`;
-  });
-
-  let listHtml = '';
-  if (withList) {
-    const snfSet = new Set();
-    for (let i = 0; i < SINIFLAR.length; i++)
-      for (let g of gunler)
-        for (let s of saatler) {
-          const [dIdx, pOgrIdx] = program[i][g][s];
-          if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28)) snfSet.add(i);
-        }
-    listHtml = `<div class="print-list-title">Girdiği Sınıflar</div>
-      <div class="print-list-grid">
-        ${[...snfSet].sort((a,b)=>a-b).map(i => `<div class="print-list-item">
-          <span class="print-list-name">${SINIFLAR[i]}</span>
-        </div>`).join('')}
-      </div>`;
-  }
+  const orientation = withList ? 'portrait' : 'landscape';
 
   const filtreSuffix = ogrGun !== -1 || ogrSaat !== -1
     ? `_${ogrGun !== -1 ? GUNLER[ogrGun] : ''}${ogrSaat !== -1 ? `_${ogrSaat+1}Saat` : ''}`
     : '';
-  const ogrFileName = `${ogrAdi.replace(/ /g,'_')}_Ders_Programi${filtreSuffix}`;
+  const fileName = `${ogrAdi.replace(/ /g,'_')}_Ders_Programi${filtreSuffix}`;
   const altBaslik = ogrGun !== -1 || ogrSaat !== -1
     ? `${ogretmenler[ogrIdx][1]} — ${ogrGun !== -1 ? GUNLER[ogrGun] : 'Tüm Günler'} / ${ogrSaat !== -1 ? `${ogrSaat+1}. Saat` : 'Tüm Saatler'}`
     : `${ogretmenler[ogrIdx][1]} — ${withList ? 'Program ve Sınıf Listesi' : 'Ders Programı'}`;
-  doPrint(
-    printHeader(ogrAdi, altBaslik),
-    tablo + listHtml,
-    withList ? 'portrait' : 'landscape',
-    ogrFileName
-  );
+
+  const { doc, fileName: fn } = makePdf(orientation, fileName);
+  const startY = addPdfHeader(doc, ogrAdi, altBaslik);
+
+  const finalY = addPdfTable(doc, startY, gunler, saatler, (g, s) => {
+    for (let i = 0; i < SINIFLAR.length; i++) {
+      const [dIdx, pOgrIdx] = program[i][g][s];
+      const match = pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28);
+      if (match) return `${SINIFLAR[i]}
+${dersler[dIdx]}`;
+    }
+    return '—';
+  });
+
+  if (withList) {
+    const snfSet = new Set();
+    for (let i = 0; i < SINIFLAR.length; i++)
+      for (let g of gunler) for (let s of saatler) {
+        const [dIdx, pOgrIdx] = program[i][g][s];
+        if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28)) snfSet.add(i);
+      }
+    const items = [...snfSet].sort((a,b)=>a-b).map(i => ({ name: SINIFLAR[i], branch: '' }));
+    addPdfList(doc, finalY, items, 'Girdiği Sınıflar');
+  }
+
+  doc.save(fn);
 }
 
-// ---- GENEL PRINT ----
+// ---- GENEL PDF ----
 function printGenel(withList) {
   const gunler = [0,1,2,3,4];
   const saatler = [0,1,2,3,4,5,6,7];
-  let pages = '';
+  const orientation = withList ? 'portrait' : 'landscape';
+  const fileName = `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}_Programlari`;
+  const { doc, fileName: fn } = makePdf(orientation, fileName);
 
-  if (genelMod === 'sinif') {
-    for (let idx = 0; idx < SINIFLAR.length; idx++) {
-      const tablo = buildPrintTable(gunler, saatler, (g, s) => {
+  const liste = genelMod === 'sinif'
+    ? SINIFLAR.map((_, idx) => idx)
+    : ogretmenler.map((_, idx) => idx);
+
+  liste.forEach((idx, pageIdx) => {
+    if (pageIdx > 0) doc.addPage();
+
+    if (genelMod === 'sinif') {
+      const baslik = `${SINIFLAR[idx]} Ders Programı`;
+      const alt = withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
+      const startY = addPdfHeader(doc, baslik, alt);
+      const finalY = addPdfTable(doc, startY, gunler, saatler, (g, s) => {
         const [dIdx, oIdx] = program[idx][g][s];
-        return `<td>
-          <span class="print-cell-ders">${dersler[dIdx]}</span>
-          <span class="print-cell-ogr">${ogretmenler[oIdx][0]}</span>
-        </td>`;
+        return `${dersler[dIdx]}
+${ogretmenler[oIdx][0]}`;
       });
-
-      let listHtml = '';
       if (withList) {
         const ogrSet = new Map();
         let hasGrMzk = false;
-        for (let g = 0; g < 5; g++) for (let s = 0; s < 8; s++) {
+        for (let g of gunler) for (let s of saatler) {
           const [dIdx, oIdx] = program[idx][g][s];
-          if (dIdx !== 0 && !ogrSet.has(oIdx)) ogrSet.set(oIdx, ogretmenler[oIdx][1]);
+          if (!ogrSet.has(oIdx)) ogrSet.set(oIdx, ogretmenler[oIdx][1]);
           if (dIdx === 28) hasGrMzk = true;
         }
         if (hasGrMzk) ogrSet.set(32, ogretmenler[32][1]);
-        const sorted = [...ogrSet.entries()].sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1]));
-        listHtml = `<div class="print-list-title">Öğretmen Listesi</div>
-          <div class="print-list-grid">
-            ${sorted.map(([oIdx]) => `<div class="print-list-item">
-              <span class="print-list-name">${ogretmenler[oIdx][0]}</span>
-              <span class="print-list-branch">${ogretmenler[oIdx][1]}</span>
-            </div>`).join('')}
-          </div>`;
+        const items = [...ogrSet.entries()]
+          .sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1]))
+          .map(([oIdx]) => ({ name: ogretmenler[oIdx][0], branch: ogretmenler[oIdx][1] }));
+        addPdfList(doc, finalY, items, 'Öğretmen Listesi');
       }
-
-      pages += `<div class="print-page">
-        ${printHeader(`${SINIFLAR[idx]} Ders Programı`, withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı')}
-        ${tablo}${listHtml}
-      </div>`;
-    }
-  } else {
-    for (let ogrIdx = 0; ogrIdx < ogretmenler.length; ogrIdx++) {
-      const tablo = buildPrintTable(gunler, saatler, (g, s) => {
+    } else {
+      const ogrIdx = idx;
+      const baslik = ogretmenler[ogrIdx][0];
+      const alt = `${ogretmenler[ogrIdx][1]}${withList ? ' — Program ve Sınıf Listesi' : ' — Ders Programı'}`;
+      const startY = addPdfHeader(doc, baslik, alt);
+      const finalY = addPdfTable(doc, startY, gunler, saatler, (g, s) => {
         for (let i = 0; i < SINIFLAR.length; i++) {
           const [dIdx, pOgrIdx] = program[i][g][s];
-          const match = pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28);
-          if (match) return `<td>
-            <span class="print-cell-snf">${SINIFLAR[i]}</span>
-            <span class="print-cell-ders">${dersler[dIdx]}</span>
-          </td>`;
+          if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28)) return `${SINIFLAR[i]}
+${dersler[dIdx]}`;
         }
-        return `<td><span class="print-cell-empty">—</span></td>`;
+        return '—';
       });
-
-      let listHtml = '';
       if (withList) {
         const snfSet = new Set();
         for (let i = 0; i < SINIFLAR.length; i++)
-          for (let g = 0; g < 5; g++)
-            for (let s = 0; s < 8; s++)
-              if (program[i][g][s][1] === ogrIdx) snfSet.add(i);
-        if (snfSet.size > 0) {
-          listHtml = `<div class="print-list-title">Girdiği Sınıflar</div>
-            <div class="print-list-grid">
-              ${[...snfSet].sort((a,b)=>a-b).map(i => `<div class="print-list-item">
-                <span class="print-list-name">${SINIFLAR[i]}</span>
-              </div>`).join('')}
-            </div>`;
-        }
+          for (let g of gunler) for (let s of saatler) {
+            const [dIdx, pOgrIdx] = program[i][g][s];
+            if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28)) snfSet.add(i);
+          }
+        const items = [...snfSet].sort((a,b)=>a-b).map(i => ({ name: SINIFLAR[i], branch: '' }));
+        addPdfList(doc, finalY, items, 'Girdiği Sınıflar');
       }
-
-      pages += `<div class="print-page">
-        ${printHeader(ogretmenler[ogrIdx][0], `${ogretmenler[ogrIdx][1]}${withList ? ' — Program ve Sınıf Listesi' : ' — Ders Programı'}`)}
-        ${tablo}${listHtml}
-      </div>`;
     }
-  }
+  });
 
-  const genelFileName = `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}_Programlari_${withList ? 'Liste_ile' : 'Tablolar'}`;
-  const root = document.getElementById('print-root');
-  root.innerHTML = pages;
-  doPrintRaw(withList ? 'portrait' : 'landscape', genelFileName);
+  doc.save(fn);
 }
 
-// ---- KARNE PRINT ----
+// ---- KARNE PDF ----
 function printKarne() {
   const sinifEl = document.getElementById('karne-sinif');
   const sinifAdi = sinifEl?.options[sinifEl?.selectedIndex]?.text || '';
   const d = window._karneD;
   if (!d) return;
 
-  let rows = '';
+  const { doc, fileName: fn } = makePdf('portrait', `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}`);
+  const startY = addPdfHeader(doc, `Karne — ${sinifAdi}`, 'Not Dökümü ve Ağırlıklı Ortalama');
+
+  const rows = [];
   let tsaat = 0, tnot = 0;
   for (const dIdx of Object.keys(d)) {
     const input = document.getElementById(`karne-${dIdx}`);
@@ -2703,62 +2588,39 @@ function printKarne() {
     const avg = parts.reduce((a,b) => a+b, 0) / parts.length;
     tsaat += d[dIdx];
     tnot += d[dIdx] * avg;
-    rows += `<div class="print-karne-row">
-      <span>${dersler[dIdx]}</span>
-      <span class="print-karne-not">${parts.length} not</span>
-      <span class="print-karne-avg">${avg.toFixed(4)}</span>
-    </div>`;
+    rows.push([dersler[dIdx], `${parts.length} not`, avg.toFixed(4)]);
   }
-
   const genel = tnot / tsaat;
 
-  const body = `
-    ${rows}
-    <div class="print-karne-total">
-      <span>Ağırlıklı Ortalama</span>
-      <span>${genel.toFixed(4)}</span>
-    </div>`;
+  doc.autoTable({
+    startY,
+    head: [['DERS', 'NOT SAYISI', 'ORTALAMA']],
+    body: rows,
+    theme: 'grid',
+    styles: { font: 'helvetica', fontSize: 10, cellPadding: 4 },
+    headStyles: { fillColor: [30,30,30], textColor: 255, fontStyle: 'bold' },
+    columnStyles: {
+      0: { cellWidth: 'auto' },
+      1: { halign: 'center', cellWidth: 35 },
+      2: { halign: 'right', cellWidth: 45 },
+    },
+  });
 
-  const karneFileName = `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}`;
-  doPrint(
-    printHeader(`Karne — ${sinifAdi}`, 'Not Dökümü ve Ağırlıklı Ortalama'),
-    body,
-    'portrait',
-    karneFileName
-  );
+  const finalY = doc.lastAutoTable.finalY + 6;
+  const pw = doc.internal.pageSize.getWidth();
+  doc.setLineWidth(1);
+  doc.line(14, finalY, pw - 14, finalY);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.text('Ağırlıklı Ortalama', 14, finalY + 9);
+  doc.text(genel.toFixed(4), pw - 14, finalY + 9, { align: 'right' });
+
+  doc.save(fn);
 }
 
-// ---- PRINT ENGINE ----
-function doPrint(headerHtml, bodyHtml, orientation, fileName) {
-  const root = document.getElementById('print-root');
-  root.innerHTML = `<div class="print-page">${headerHtml}${bodyHtml}</div>`;
-  doPrintRaw(orientation, fileName);
-}
-
-function doPrintRaw(orientation, fileName) {
-  // Orientation için geçici style ekle
-  let styleEl = document.getElementById('print-orientation-style');
-  if (!styleEl) {
-    styleEl = document.createElement('style');
-    styleEl.id = 'print-orientation-style';
-    document.head.appendChild(styleEl);
-  }
-  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 6mm; }`;
-
-  // Dosya adı için title geçici değiştir
-  const origTitle = document.title;
-  if (fileName) document.title = fileName;
-
-  const root = document.getElementById('print-root');
-  root.style.display = 'block';
-
-  // Kısa gecikme ile print — tarayıcının @page stilini uygulaması için
-  setTimeout(() => {
-    window.print();
-    root.style.display = 'none';
-    if (fileName) document.title = origTitle;
-  }, 150);
-}
+// ---- ESKI YARDIMCI FONKSİYONLAR (artık kullanılmıyor, güvenli kaldır) ----
+function doPrint() {}
+function doPrintRaw() {}
 
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
@@ -2788,8 +2650,6 @@ function toggleTheme() {
   </div>
 </div>
 
-<!-- PRINT ROOT (print anında görünür) -->
-<div id="print-root" style="display:none;"></div>
 
 </body>
 </html>
