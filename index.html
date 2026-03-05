@@ -1167,8 +1167,8 @@
 
     /* Landscape: büyük font, geniş satırlar */
     #print-root[data-ori="landscape"] .pt tbody td {
-      height:22mm;
-      max-height:22mm;
+      height:20mm;
+      max-height:20mm;
     }
     #print-root[data-ori="landscape"] .pt-d { font-size:16pt; }
     #print-root[data-ori="landscape"] .pt-o { font-size:12pt; margin-top:3pt; }
@@ -1181,6 +1181,9 @@
     #print-root[data-ori="landscape"] .ph-title { font-size:11pt; }
     #print-root[data-ori="landscape"] .ph-top { padding-bottom:1.5mm; }
     #print-root[data-ori="landscape"] .ph-rule { margin-top:1mm; margin-bottom:1.5mm; }
+    /* Landscape: uzun isimler için wrap izni */
+    #print-root[data-ori="landscape"] .pt-d { white-space:normal; }
+    #print-root[data-ori="landscape"] .pt-o { white-space:normal; }
 
     /* Portrait: tablo + liste, satırlar sıkı */
     #print-root[data-ori="portrait"] .pt tbody td {
@@ -1254,15 +1257,6 @@
           <span class="pk-num">87.3333</span>
         </div>
     */
-    .pk-avg {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      background:#fff;
-      border:0.4mm solid #000;
-      margin-top:2mm;
-      padding:3mm 5mm;
-    }
     /* Karne thead beyaz */
     .pt-karne thead tr th {
       background:#fff !important;
@@ -1287,16 +1281,32 @@
       text-transform:none;
     }
     .pk-num {
-      font-family:'Syne', sans-serif;
+      font-family:'Space Mono', monospace;
       font-size:13pt;
-      font-weight:800;
+      font-weight:700;
       color:#000;
     }
 
-    /* Karne satırları kısa (tek satır içerik) */
+    /* Genel tek saat: çok satır için compact */
+    .pt-genel-tek thead tr { height:8mm; }
+    .pt-genel-tek th { font-size:7pt; }
+    .pt-genel-tek tbody td { padding:2pt 3pt; vertical-align:middle; }
+    #print-root[data-ori="portrait"] .pt-genel-tek tbody td {
+      height:auto;
+      min-height:7mm;
+      max-height:none;
+    }
+    .pt-genel-tek .pt-sn { font-size:7pt; }
+    .pt-genel-tek .pt-st { font-size:5.5pt; }
+    .pt-genel-tek .pt-d  { font-size:7pt; }
+    .pt-genel-tek .pt-o  { font-size:5.5pt; margin-top:0.5pt; }
+
+    /* Karne satırları */
     #print-root[data-ori="portrait"] .pt-karne tbody td {
-      height:8mm;
-      max-height:8mm;
+      height:9mm;
+      max-height:9mm;
+      overflow:hidden;
+      vertical-align:middle;
     }
   }
 
@@ -2694,9 +2704,8 @@ function buildPrintTable(gunler, saatler, cellFn) {
     }
 
     const saatHucre = `<td class="pt-s">
-      <span class="pt-sn">${s+1}.</span>
+      <span class="pt-sn">${s+1}. Saat</span>
       <span class="pt-st">${saatAralik}</span>
-      ${cumaSpan}
     </td>`;
 
     const dersHucreler = gunler.map(g => {
@@ -2874,12 +2883,12 @@ function printGenel(withList) {
         tbody += `</tr>`;
       }
       tbody += '</tbody>';
-      tablo = `<table class="pt">${colgroup}${thead}${tbody}</table>`;
+      tablo = `<table class="pt pt-genel-tek">${colgroup}${thead}${tbody}</table>`;
     } else {
       // Satır=öğretmen, Sütun=gün
-      const colgroup = `<colgroup><col class="pt-cs">${gunler.map(() => '<col>').join('')}</colgroup>`;
+      const colgroup = `<colgroup><col style="width:48mm">${gunler.map(() => '<col>').join('')}</colgroup>`;
       const thead = `<thead><tr>
-        <th>ÖĞRETMEN</th>
+        <th style="text-align:left;padding-left:3pt;">ÖĞRETMEN</th>
         ${gunler.map(g => {
           const [gS, gE] = getSaatLabel(g, s);
           return `<th>${GUNLER[g].toUpperCase()}<br><span style="font-weight:400;font-size:5pt;">${gS}–${gE}</span></th>`;
@@ -2910,7 +2919,7 @@ function printGenel(withList) {
         tbody += `</tr>`;
       }
       tbody += '</tbody>';
-      tablo = `<table class="pt">${colgroup}${thead}${tbody}</table>`;
+      tablo = `<table class="pt pt-genel-tek">${colgroup}${thead}${tbody}</table>`;
     }
 
     const altBaslik = `${genelGun !== -1 ? GUNLER[genelGun] : 'Tüm Günler'} — ${s+1}. Saat`;
@@ -2919,7 +2928,7 @@ function printGenel(withList) {
       genelMod === 'sinif' ? 'Tüm Sınıflar Ders Programı' : 'Tüm Öğretmenler Ders Programı',
       altBaslik
     )}${tablo}</div>`;
-    doPrintRaw('landscape', `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}${filtreSuffix}`);
+    doPrintRaw('portrait', `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}${filtreSuffix}`);
     return;
   }
 
