@@ -959,7 +959,7 @@
 
     .print-page {
       page-break-after: always;
-      padding: 10mm 10mm;
+      padding: 0;
       background: #fff;
       box-sizing: border-box;
     }
@@ -970,12 +970,12 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1.5px solid #000;
-      padding-bottom: 5px;
-      margin-bottom: 8px;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
     }
     .print-logo {
       font-family: 'Syne', sans-serif;
-      font-size: 16pt;
+      font-size: 20pt;
       font-weight: 900;
       letter-spacing: 2px;
       color: #000;
@@ -990,67 +990,69 @@
     }
     .print-title {
       font-family: 'Syne', sans-serif;
-      font-size: 11pt;
+      font-size: 13pt;
       font-weight: 800;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
       color: #000;
     }
     .print-sub {
-      font-size: 6pt;
+      font-size: 7pt;
       color: #666;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     /* Tablo */
     .print-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 6pt;
+      font-size: 8pt;
       table-layout: fixed;
     }
     .print-table th {
       background: #222;
       color: #fff;
-      padding: 3px 4px;
+      padding: 5px 6px;
       text-align: center;
-      font-size: 6pt;
+      font-size: 7pt;
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
     .print-table td {
-      border: 1px solid #ddd;
-      padding: 3px 4px;
+      border: 1px solid #ccc;
+      padding: 5px 6px;
       vertical-align: top;
     }
     .print-table td:first-child {
       background: #f8f8f8;
       text-align: center;
-      font-size: 5.5pt;
-      width: 48px;
+      font-size: 7pt;
+      width: 55px;
       white-space: nowrap;
     }
     .print-cell-ders {
       font-weight: 700;
-      font-size: 6pt;
+      font-size: 8pt;
       display: block;
       margin-bottom: 1px;
       overflow: hidden;
     }
     .print-cell-ogr {
-      font-size: 5pt;
+      font-size: 6.5pt;
       color: #555;
       display: block;
       overflow: hidden;
     }
     .print-cell-snf {
-      font-size: 5.5pt;
+      font-size: 7pt;
       font-weight: 700;
       color: #333;
       display: block;
     }
     .print-cell-empty { color: #ccc; font-size: 7pt; }
+    .print-table tr { page-break-inside: avoid; }
+    .print-table { page-break-inside: auto; }
 
     /* Öğretmen/Sınıf listesi (dikey mod) */
     .print-list-title {
@@ -1192,7 +1194,7 @@
         <div class="chip-group" id="sinif-saat-chips"></div>
       </div>
     </div>
-    <button class="pdf-btn" onclick="openPdfModal('sinif')">
+    <button class="pdf-btn" id="pdf-btn-sinif" style="display:none;" onclick="openPdfModal('sinif')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       PDF İndir
     </button>
@@ -1215,7 +1217,7 @@
         <div class="chip-group" id="ogr-saat-chips"></div>
       </div>
     </div>
-    <button class="pdf-btn" onclick="openPdfModal('ogretmen')">
+    <button class="pdf-btn" id="pdf-btn-ogretmen" style="display:none;" onclick="openPdfModal('ogretmen')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       PDF İndir
     </button>
@@ -1259,7 +1261,7 @@
       </select>
     </div>
     <div id="karne-form"></div>
-    <button class="pdf-btn" onclick="openPdfModal('karne')">
+    <button class="pdf-btn" id="pdf-btn-karne" style="display:none;" onclick="openPdfModal('karne')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       PDF İndir
     </button>
@@ -1629,7 +1631,20 @@ function buildSinifSelect() {
 
 function renderSinif() {
   const idx = parseInt(document.getElementById('sinif-select').value);
-  if (isNaN(idx)) return;
+  const pdfBtn = document.getElementById('pdf-btn-sinif');
+  if (isNaN(idx)) {
+    if (pdfBtn) pdfBtn.style.display = 'none';
+    document.getElementById('sinif-table').innerHTML = '';
+    document.getElementById('sinif-filters').style.display = 'none';
+    return;
+  }
+  if (pdfBtn) pdfBtn.style.display = '';
+
+  // Yeni sınıf seçince filtreleri sıfırla
+  sinifGun = -1; sinifSaat = -1;
+  document.querySelectorAll('#sinif-gun-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
+  document.querySelectorAll('#sinif-saat-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
+
   const cur = getCurrentLesson();
 
   // Filtreleri göster
@@ -1670,24 +1685,28 @@ function renderSinif() {
     html += `</tr>`;
   }
   html += `</tbody></table></div>`;
-  // Öğretmen listesi
+  // Öğretmen listesi — aktif filtreye göre
   const ogrSet = new Map();
   let hasGrMzk = false;
-  for (let g = 0; g < 5; g++) {
-    for (let s = 0; s < 8; s++) {
+  for (let g of gunler) {
+    for (let s of saatler) {
       const [dIdx, oIdx] = program[idx][g][s];
-      if (dIdx !== 0 && !ogrSet.has(oIdx)) {
-        ogrSet.set(oIdx, ogretmenler[oIdx][1]);
-      }
+      if (!ogrSet.has(oIdx)) ogrSet.set(oIdx, ogretmenler[oIdx][1]);
       if (dIdx === 28) hasGrMzk = true;
     }
   }
-  // Resim-Müzik dersi varsa Zahide ÜLKE'yi de ekle
   if (hasGrMzk) ogrSet.set(32, ogretmenler[32][1]);
-  // Müzik öğretmeni ekle (GR-MZK -> 28, öğretmen listede yok olabilir)
+
+  const filtreli = sinifGun !== -1 || sinifSaat !== -1;
+  const sub = filtreli
+    ? (sinifGun !== -1 && sinifSaat !== -1
+        ? `${GUNLER[sinifGun]} — ${sinifSaat+1}. saat`
+        : sinifGun !== -1 ? GUNLER[sinifGun] : `${sinifSaat+1}. saat`)
+    : 'Bu sınıfa giren öğretmenler';
+
   let ogrHtml = `<div style="margin-top:28px;">
     <div class="section-title" style="font-size:1rem;margin-bottom:4px;">Öğretmen Listesi</div>
-    <div class="section-sub">Bu sınıfa giren öğretmenler</div>
+    <div class="section-sub">${sub}</div>
     <div class="teacher-grid">`;
   [...ogrSet.entries()].sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1])).forEach(([oIdx, branch]) => {
     ogrHtml += `<div class="teacher-card" onclick="switchTab('ogretmen');selectTeacher(${oIdx})" style="cursor:pointer">
@@ -1790,6 +1809,14 @@ function selectTeacher(idx) {
   }
   selectedOgr = idx;
   document.getElementById(`tc-${idx}`).classList.add('selected');
+  const pdfBtn = document.getElementById('pdf-btn-ogretmen');
+  if (pdfBtn) pdfBtn.style.display = '';
+
+  // Yeni öğretmen seçince filtreleri sıfırla
+  ogrGun = -1; ogrSaat = -1;
+  document.querySelectorAll('#ogr-gun-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
+  document.querySelectorAll('#ogr-saat-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
+
   renderOgretmen(idx);
 }
 
@@ -1841,22 +1868,35 @@ function renderOgretmen(ogrIdx) {
     html += `</tr>`;
   }
   html += `</tbody></table></div>`;
-  // Girdiği sınıflar
+  // Girdiği sınıflar — aktif filtreye göre
   const snfSet = new Set();
   for (let i = 0; i < SINIFLAR.length; i++) {
-    for (let g = 0; g < 5; g++) {
-      for (let s = 0; s < 8; s++) {
-        if (program[i][g][s][1] === ogrIdx) snfSet.add(i);
+    for (let g of gunler) {
+      for (let s of saatler) {
+        const [dIdx, pOgrIdx] = program[i][g][s];
+        const match = pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28);
+        if (match) snfSet.add(i);
       }
     }
   }
+
+  const filtreli = ogrGun !== -1 || ogrSaat !== -1;
+  const sub = filtreli
+    ? (ogrGun !== -1 && ogrSaat !== -1
+        ? `${GUNLER[ogrGun]} — ${ogrSaat+1}. saat`
+        : ogrGun !== -1 ? GUNLER[ogrGun] : `${ogrSaat+1}. saat`)
+    : 'Bu öğretmenin ders verdiği sınıflar';
+
   let snfHtml = `<div style="margin-top:28px;">
     <div class="section-title" style="font-size:1rem;margin-bottom:4px;">Girdiği Sınıflar</div>
-    <div class="section-sub">Bu öğretmenin ders verdiği sınıflar</div>
+    <div class="section-sub">${sub}</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">`;
   [...snfSet].sort((a,b)=>a-b).forEach(i => {
     snfHtml += `<div class="chip selected" onclick="switchTab('sinif');document.getElementById('sinif-select').value=${i};renderSinif()" style="cursor:pointer;font-size:0.75rem;padding:8px 18px;">${SINIFLAR[i]}</div>`;
   });
+  if (snfSet.size === 0) {
+    snfHtml += `<span style="color:var(--muted);font-size:0.65rem;">Bu filtre için ders yok</span>`;
+  }
   snfHtml += `</div></div>`;
   document.getElementById('ogretmen-table').innerHTML = html + snfHtml;
   document.getElementById('ogretmen-table').scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -2077,6 +2117,16 @@ function buildKarneSinif() {
 }
 
 function setupKarne() {
+  const kIdx = parseInt(document.getElementById('karne-sinif').value);
+  const pdfBtn = document.getElementById('pdf-btn-karne');
+  if (isNaN(kIdx)) {
+    if (pdfBtn) pdfBtn.style.display = 'none';
+    document.getElementById('karne-result').innerHTML = '';
+    document.getElementById('karne-form').innerHTML = '';
+    window._karneD = null;
+    return;
+  }
+  if (pdfBtn) pdfBtn.style.display = 'none'; // not girilene kadar gizli kalır
   const snfIdx = parseInt(document.getElementById('karne-sinif').value);
   if (isNaN(snfIdx)) return;
 
@@ -2144,8 +2194,12 @@ function calcKarne() {
 
   if (!herhangiNotVar) {
     document.getElementById('karne-result').innerHTML = '';
+    const pdfBtnK = document.getElementById('pdf-btn-karne');
+    if (pdfBtnK) pdfBtnK.style.display = 'none';
     return;
   }
+  const pdfBtnK = document.getElementById('pdf-btn-karne');
+  if (pdfBtnK) pdfBtnK.style.display = '';
 
   const genel = tnot / tsaat;
   const renk = genel >= 85 ? 'var(--accent)' : genel >= 70 ? 'var(--accent2)' : 'var(--accent3)';
@@ -2445,8 +2499,8 @@ function buildPrintTable(gunler, saatler, cellFn) {
 // ---- SINIF PRINT ----
 function printSinif(idx, withList) {
   const sinifAdi = SINIFLAR[idx];
-  const gunler = [0,1,2,3,4];
-  const saatler = [0,1,2,3,4,5,6,7];
+  const gunler = sinifGun === -1 ? [0,1,2,3,4] : [sinifGun];
+  const saatler = sinifSaat === -1 ? [0,1,2,3,4,5,6,7] : [sinifSaat];
 
   const tablo = buildPrintTable(gunler, saatler, (g, s) => {
     const [dIdx, oIdx] = program[idx][g][s];
@@ -2460,9 +2514,9 @@ function printSinif(idx, withList) {
   if (withList) {
     const ogrSet = new Map();
     let hasGrMzk = false;
-    for (let g = 0; g < 5; g++) for (let s = 0; s < 8; s++) {
+    for (let g of gunler) for (let s of saatler) {
       const [dIdx, oIdx] = program[idx][g][s];
-      if (dIdx !== 0 && !ogrSet.has(oIdx)) ogrSet.set(oIdx, ogretmenler[oIdx][1]);
+      if (!ogrSet.has(oIdx)) ogrSet.set(oIdx, ogretmenler[oIdx][1]);
       if (dIdx === 28) hasGrMzk = true;
     }
     if (hasGrMzk) ogrSet.set(32, ogretmenler[32][1]);
@@ -2476,9 +2530,15 @@ function printSinif(idx, withList) {
       </div>`;
   }
 
-  const sinifFileName = `${sinifAdi.replace('/','')}_${withList ? 'Program_ve_Ogretmen_Listesi' : 'Ders_Programi'}`;
+  const filtreSuffix = sinifGun !== -1 || sinifSaat !== -1
+    ? `_${sinifGun !== -1 ? GUNLER[sinifGun] : ''}${sinifSaat !== -1 ? `_${sinifSaat+1}Saat` : ''}`
+    : '';
+  const sinifFileName = `${sinifAdi.replace('/','')}_Ders_Programi${filtreSuffix}`;
+  const altBaslik = sinifGun !== -1 || sinifSaat !== -1
+    ? `${sinifGun !== -1 ? GUNLER[sinifGun] : 'Tüm Günler'} — ${sinifSaat !== -1 ? `${sinifSaat+1}. Saat` : 'Tüm Saatler'}`
+    : withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
   doPrint(
-    printHeader(`${sinifAdi} Ders Programı`, `${withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı'}`),
+    printHeader(`${sinifAdi} Ders Programı`, altBaslik),
     tablo + listHtml,
     withList ? 'portrait' : 'landscape',
     sinifFileName
@@ -2488,8 +2548,8 @@ function printSinif(idx, withList) {
 // ---- ÖĞRETMEN PRINT ----
 function printOgretmen(ogrIdx, withList) {
   const ogrAdi = ogretmenler[ogrIdx][0];
-  const gunler = [0,1,2,3,4];
-  const saatler = [0,1,2,3,4,5,6,7];
+  const gunler = ogrGun === -1 ? [0,1,2,3,4] : [ogrGun];
+  const saatler = ogrSaat === -1 ? [0,1,2,3,4,5,6,7] : [ogrSaat];
 
   const tablo = buildPrintTable(gunler, saatler, (g, s) => {
     for (let i = 0; i < SINIFLAR.length; i++) {
@@ -2507,9 +2567,11 @@ function printOgretmen(ogrIdx, withList) {
   if (withList) {
     const snfSet = new Set();
     for (let i = 0; i < SINIFLAR.length; i++)
-      for (let g = 0; g < 5; g++)
-        for (let s = 0; s < 8; s++)
-          if (program[i][g][s][1] === ogrIdx) snfSet.add(i);
+      for (let g of gunler)
+        for (let s of saatler) {
+          const [dIdx, pOgrIdx] = program[i][g][s];
+          if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28)) snfSet.add(i);
+        }
     listHtml = `<div class="print-list-title">Girdiği Sınıflar</div>
       <div class="print-list-grid">
         ${[...snfSet].sort((a,b)=>a-b).map(i => `<div class="print-list-item">
@@ -2518,9 +2580,15 @@ function printOgretmen(ogrIdx, withList) {
       </div>`;
   }
 
-  const ogrFileName = `${ogrAdi.replace(/ /g,'_')}_${withList ? 'Program_ve_Sinif_Listesi' : 'Ders_Programi'}`;
+  const filtreSuffix = ogrGun !== -1 || ogrSaat !== -1
+    ? `_${ogrGun !== -1 ? GUNLER[ogrGun] : ''}${ogrSaat !== -1 ? `_${ogrSaat+1}Saat` : ''}`
+    : '';
+  const ogrFileName = `${ogrAdi.replace(/ /g,'_')}_Ders_Programi${filtreSuffix}`;
+  const altBaslik = ogrGun !== -1 || ogrSaat !== -1
+    ? `${ogretmenler[ogrIdx][1]} — ${ogrGun !== -1 ? GUNLER[ogrGun] : 'Tüm Günler'} / ${ogrSaat !== -1 ? `${ogrSaat+1}. Saat` : 'Tüm Saatler'}`
+    : `${ogretmenler[ogrIdx][1]} — ${withList ? 'Program ve Sınıf Listesi' : 'Ders Programı'}`;
   doPrint(
-    printHeader(`${ogrAdi}`, `${ogretmenler[ogrIdx][1]} — ${withList ? 'Program ve Sınıf Listesi' : 'Ders Programı'}`),
+    printHeader(ogrAdi, altBaslik),
     tablo + listHtml,
     withList ? 'portrait' : 'landscape',
     ogrFileName
@@ -2670,7 +2738,7 @@ function doPrintRaw(orientation, fileName) {
     styleEl.id = 'print-orientation-style';
     document.head.appendChild(styleEl);
   }
-  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 0; }`;
+  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 8mm 8mm; } @page :first { margin: 8mm 8mm; }`;
 
   // Dosya adı için title geçici değiştir
   const origTitle = document.title;
@@ -2678,11 +2746,13 @@ function doPrintRaw(orientation, fileName) {
 
   const root = document.getElementById('print-root');
   root.style.display = 'block';
-  window.print();
-  root.style.display = 'none';
 
-  // Title geri yükle
-  if (fileName) document.title = origTitle;
+  // Kısa gecikme ile print — tarayıcının @page stilini uygulaması için
+  setTimeout(() => {
+    window.print();
+    root.style.display = 'none';
+    if (fileName) document.title = origTitle;
+  }, 150);
 }
 
 function toggleTheme() {
