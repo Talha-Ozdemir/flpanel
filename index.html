@@ -550,7 +550,7 @@
     margin-top: 16px;
     padding-top: 16px;
     border-top: 2px solid var(--accent);
-    font-size: clamp(0.75rem, 3vw, 1.2rem);
+    font-size: clamp(0.7rem, 3vw, 1.2rem);
     font-family: 'Syne', sans-serif;
     font-weight: 800;
     color: var(--accent);
@@ -1745,9 +1745,20 @@ function setupKarne() {
   window._karneD = d;
 }
 
+// Kaç basamak gösterileceğini sakla
+window._karneDecimals = {}; // dIdx -> basamak sayısı
+window._karneGenelDecimal = 4;
+
 function calcKarne() {
   const d = window._karneD;
   if (!d) return;
+
+  // Mevcut basamak durumlarını kaydet
+  document.querySelectorAll('#karne-result [data-didx]').forEach(el => {
+    window._karneDecimals[el.dataset.didx] = el.textContent.includes('.') ? el.textContent.split('.')[1].length : 4;
+  });
+  const genelEl = document.querySelector('#karne-result .karne-avg span:last-child');
+  if (genelEl) window._karneGenelDecimal = genelEl.textContent.includes('.') ? genelEl.textContent.split('.')[1].length : 4;
 
   let tsaat = 0, tnot = 0;
   let rows = '';
@@ -1764,10 +1775,11 @@ function calcKarne() {
     const avg = parts.reduce((a,b) => a+b, 0) / parts.length;
     tsaat += d[dIdx];
     tnot += d[dIdx] * avg;
+    const dec = window._karneDecimals[dIdx] || 4;
     rows += `<div class="karne-ders-row">
       <span class="d${dIdx}">${dersler[dIdx]}</span>
       <span style="color:var(--muted);font-size:0.6rem;text-align:center;">${parts.length} not</span>
-      <span style="text-align:right;cursor:pointer;user-select:none;" onclick="toggleKarneDecimal(this,${avg})" title="Daha fazla basamak için tıkla">${avg.toFixed(4)}</span>
+      <span data-didx="${dIdx}" style="text-align:right;cursor:pointer;user-select:none;" onclick="toggleKarneDecimal(this,${avg})" title="Daha fazla basamak için tıkla">${avg.toFixed(dec)}</span>
     </div>`;
   }
 
@@ -1778,12 +1790,13 @@ function calcKarne() {
 
   const genel = tnot / tsaat;
   const renk = genel >= 85 ? 'var(--accent)' : genel >= 70 ? 'var(--accent2)' : 'var(--accent3)';
+  const genelDec = window._karneGenelDecimal || 4;
   document.getElementById('karne-result').innerHTML = `
     <div class="karne-result">
       ${rows}
       <div class="karne-avg" style="color:${renk}">
         <span>Ağırlıklı Ortalama</span>
-        <span style="cursor:pointer;user-select:none;" onclick="toggleKarneDecimal(this,${genel})" title="Daha fazla basamak için tıkla">${genel.toFixed(4)}</span>
+        <span style="cursor:pointer;user-select:none;" onclick="toggleKarneDecimal(this,${genel})" title="Daha fazla basamak için tıkla">${genel.toFixed(genelDec)}</span>
       </div>
     </div>`;
 }
