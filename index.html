@@ -3024,6 +3024,28 @@ function printKarne() {
   const d = window._karneD;
   if (!d) return;
 
+  // calcKarne'nin son render'ından önce _karneDecimals güncellenir
+  // Ek güvenlik: DOM'da span varsa ondan oku, yoksa _karneDecimals'a bak, o da yoksa 4
+  const getDecimal = (dIdx) => {
+    const domSpan = document.querySelector(`#karne-result [data-didx="${dIdx}"]`);
+    if (domSpan) {
+      const txt = domSpan.textContent.trim();
+      const dot = txt.indexOf('.');
+      if (dot !== -1) return txt.length - dot - 1;
+    }
+    return (window._karneDecimals && window._karneDecimals[dIdx]) || 4;
+  };
+
+  const getGenelDecimal = () => {
+    const domSpan = document.querySelector('#karne-result .karne-avg span:last-child');
+    if (domSpan) {
+      const txt = domSpan.textContent.trim();
+      const dot = txt.indexOf('.');
+      if (dot !== -1) return txt.length - dot - 1;
+    }
+    return window._karneGenelDecimal || 4;
+  };
+
   let rows = '', tsaat = 0, tnot = 0, herhangiVar = false;
   for (const dIdx of Object.keys(d)) {
     const input = document.getElementById(`karne-${dIdx}`);
@@ -3032,16 +3054,9 @@ function printKarne() {
     if (parts.length === 0) continue;
     herhangiVar = true;
     const avg = parts.reduce((a,b) => a+b, 0) / parts.length;
-    tsaat += d[dIdx]; tnot += d[dIdx] * avg;
-
-    // DOM'dan mevcut gösterilen basamak sayısını oku
-    const domSpan = document.querySelector(`#karne-result [data-didx="${dIdx}"]`);
-    let dec = 4;
-    if (domSpan) {
-      const txt = domSpan.textContent.trim();
-      const dotIdx = txt.indexOf('.');
-      dec = dotIdx !== -1 ? txt.length - dotIdx - 1 : 4;
-    }
+    tsaat += d[dIdx];
+    tnot  += d[dIdx] * avg;
+    const dec = getDecimal(dIdx);
 
     rows += `<tr>
       <td><b class="pt-d">${dersler[dIdx]}</b></td>
@@ -3050,16 +3065,9 @@ function printKarne() {
     </tr>`;
   }
   if (!herhangiVar) return;
-  const genel = tnot / tsaat;
 
-  // Genel ortalama DOM'dan basamak oku
-  const genelDomSpan = document.querySelector('#karne-result .karne-avg span:last-child');
-  let genelDec = 4;
-  if (genelDomSpan) {
-    const txt = genelDomSpan.textContent.trim();
-    const dotIdx = txt.indexOf('.');
-    genelDec = dotIdx !== -1 ? txt.length - dotIdx - 1 : 4;
-  }
+  const genel    = tnot / tsaat;
+  const genelDec = getGenelDecimal();
 
   const body = `
     <table class="pt pt-karne">
