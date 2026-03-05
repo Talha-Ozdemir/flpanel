@@ -1165,15 +1165,24 @@
     /* ── ROW HEIGHT — orientation'a göre ── */
     /* doPrintRaw, #print-root'a data-ori="landscape"|"portrait" ekler */
 
-    /* Landscape: sadece tablo, satırlar geniş
-       Hesap: (198-17mm header - 6.5mm thead) / 8 satır ≈ 21.8mm → 21mm */
+    /* Landscape: büyük font, geniş satırlar */
     #print-root[data-ori="landscape"] .pt tbody td {
-      height:21mm;
-      max-height:21mm;
+      height:22mm;
+      max-height:22mm;
     }
+    #print-root[data-ori="landscape"] .pt-d { font-size:16pt; }
+    #print-root[data-ori="landscape"] .pt-o { font-size:12pt; margin-top:3pt; }
+    #print-root[data-ori="landscape"] .pt-sn { font-size:13pt; }
+    #print-root[data-ori="landscape"] .pt-st { font-size:10pt; }
+    #print-root[data-ori="landscape"] .pt thead tr { height:10mm; }
+    #print-root[data-ori="landscape"] .pt th { font-size:10pt; }
+    #print-root[data-ori="landscape"] .pt-cuma-tag { font-size:10pt; padding:1.5pt 3pt; }
+    /* Landscape başlık sıkıştır — tablo için yer */
+    #print-root[data-ori="landscape"] .ph-title { font-size:11pt; }
+    #print-root[data-ori="landscape"] .ph-top { padding-bottom:1.5mm; }
+    #print-root[data-ori="landscape"] .ph-rule { margin-top:1mm; margin-bottom:1.5mm; }
 
-    /* Portrait: tablo + liste, satırlar sıkı
-       Hesap: tablo için 102mm, 8×12mm=96mm + 6.5mm thead = 102.5mm ✓ */
+    /* Portrait: tablo + liste, satırlar sıkı */
     #print-root[data-ori="portrait"] .pt tbody td {
       height:12mm;
       max-height:12mm;
@@ -1254,16 +1263,33 @@
       margin-top:2mm;
       padding:3mm 5mm;
     }
+    /* Karne thead beyaz */
+    .pt-karne thead tr th {
+      background:#fff !important;
+      color:#000 !important;
+      border-bottom:0.5mm solid #000;
+    }
+    .pk-avg {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#fff;
+      border:0.4mm solid #000;
+      margin-top:2mm;
+      padding:3mm 5mm;
+    }
     .pk-label {
-      font-size:6pt;
-      color:#888;
-      letter-spacing:2px;
-      text-transform:uppercase;
+      font-family:'Syne', sans-serif;
+      font-size:13pt;
+      font-weight:800;
+      color:#000;
+      letter-spacing:0;
+      text-transform:none;
     }
     .pk-num {
       font-family:'Syne', sans-serif;
-      font-size:14pt;
-      font-weight:900;
+      font-size:13pt;
+      font-weight:800;
       color:#000;
     }
 
@@ -2807,27 +2833,106 @@ function printOgretmen(ogrIdx, withList) {
 }
 
 function printGenel(withList) {
-  // Aktif filtreleri kullan
-  const gunler = genelGun === -1 ? [0,1,2,3,4] : [genelGun];
+  const gunler  = genelGun  === -1 ? [0,1,2,3,4]   : [genelGun];
   const saatler = genelSaat === -1 ? [0,1,2,3,4,5,6,7] : [genelSaat];
   const orientation = withList ? 'portrait' : 'landscape';
-  let pages = '';
-
   const filtreSuffix = (genelGun !== -1 || genelSaat !== -1)
     ? `_${genelGun !== -1 ? GUNLER[genelGun] : ''}${genelSaat !== -1 ? `_${genelSaat+1}Saat` : ''}`
     : '';
 
+  // ── TEK SAAT SEÇİLİ: hepsi tek tabloda (web'deki gibi) ──
+  if (genelSaat !== -1) {
+    const s = genelSaat;
+    let tablo = '';
+
+    if (genelMod === 'sinif') {
+      // Satır=sınıf, Sütun=gün
+      const colgroup = `<colgroup><col class="pt-cs">${gunler.map(() => '<col>').join('')}</colgroup>`;
+      const thead = `<thead><tr>
+        <th>SINIF</th>
+        ${gunler.map(g => {
+          const [gS, gE] = getSaatLabel(g, s);
+          return `<th>${GUNLER[g].toUpperCase()}<br><span style="font-weight:400;font-size:5pt;">${gS}–${gE}</span></th>`;
+        }).join('')}
+      </tr></thead>`;
+      let tbody = '<tbody>';
+      for (let i = 0; i < SINIFLAR.length; i++) {
+        tbody += `<tr><td class="pt-s" style="text-align:center;"><span class="pt-sn">${SINIFLAR[i]}</span></td>`;
+        for (const g of gunler) {
+          const [dIdx, oIdx] = program[i][g][s];
+          let cumaTag = '';
+          if (g === 4) {
+            const [gS] = getSaatLabel(4, s);
+            const [nS] = SAATLER_NORMAL[s];
+            if (gS !== nS) {
+              const [gS2, gE2] = getSaatLabel(4, s);
+              cumaTag = `<span class="pt-cuma-tag">${gS2}–${gE2}</span>`;
+            }
+          }
+          tbody += `<td>${cumaTag}<b class="pt-d">${dersler[dIdx]}</b><span class="pt-o">${ogretmenler[oIdx][0]}</span></td>`;
+        }
+        tbody += `</tr>`;
+      }
+      tbody += '</tbody>';
+      tablo = `<table class="pt">${colgroup}${thead}${tbody}</table>`;
+    } else {
+      // Satır=öğretmen, Sütun=gün
+      const colgroup = `<colgroup><col class="pt-cs">${gunler.map(() => '<col>').join('')}</colgroup>`;
+      const thead = `<thead><tr>
+        <th>ÖĞRETMEN</th>
+        ${gunler.map(g => {
+          const [gS, gE] = getSaatLabel(g, s);
+          return `<th>${GUNLER[g].toUpperCase()}<br><span style="font-weight:400;font-size:5pt;">${gS}–${gE}</span></th>`;
+        }).join('')}
+      </tr></thead>`;
+      let tbody = '<tbody>';
+      for (let oIdx = 0; oIdx < ogretmenler.length; oIdx++) {
+        tbody += `<tr><td class="pt-s" style="text-align:left;padding-left:3pt;"><span class="pt-sn" style="font-size:6.5pt;">${ogretmenler[oIdx][0]}</span><span class="pt-st">${ogretmenler[oIdx][1]}</span></td>`;
+        for (const g of gunler) {
+          let foundSinif = null, foundDers = null;
+          for (let i = 0; i < SINIFLAR.length; i++) {
+            const [dIdx, pOgrIdx] = program[i][g][s];
+            if (pOgrIdx === oIdx || (oIdx === 32 && dIdx === 28)) { foundSinif = i; foundDers = dIdx; break; }
+          }
+          let cumaTag = '';
+          if (g === 4 && foundSinif !== null) {
+            const [gS] = getSaatLabel(4, s);
+            const [nS] = SAATLER_NORMAL[s];
+            if (gS !== nS) {
+              const [gS2, gE2] = getSaatLabel(4, s);
+              cumaTag = `<span class="pt-cuma-tag">${gS2}–${gE2}</span>`;
+            }
+          }
+          tbody += foundSinif !== null
+            ? `<td>${cumaTag}<b class="pt-d">${SINIFLAR[foundSinif]}</b><span class="pt-o">${dersler[foundDers]}</span></td>`
+            : `<td class="pt-empty">—</td>`;
+        }
+        tbody += `</tr>`;
+      }
+      tbody += '</tbody>';
+      tablo = `<table class="pt">${colgroup}${thead}${tbody}</table>`;
+    }
+
+    const altBaslik = `${genelGun !== -1 ? GUNLER[genelGun] : 'Tüm Günler'} — ${s+1}. Saat`;
+    const root = document.getElementById('print-root');
+    root.innerHTML = `<div class="print-page">${printHeader(
+      genelMod === 'sinif' ? 'Tüm Sınıflar Ders Programı' : 'Tüm Öğretmenler Ders Programı',
+      altBaslik
+    )}${tablo}</div>`;
+    doPrintRaw('landscape', `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}${filtreSuffix}`);
+    return;
+  }
+
+  // ── TÜM SAATLER: her sınıf/öğretmen ayrı sayfa ──
+  let pages = '';
   if (genelMod === 'sinif') {
     for (let idx = 0; idx < SINIFLAR.length; idx++) {
-      const altBaslik = genelGun !== -1 || genelSaat !== -1
-        ? `${genelGun !== -1 ? GUNLER[genelGun] : 'Tüm Günler'} — ${genelSaat !== -1 ? `${genelSaat+1}. Saat` : 'Tüm Saatler'}`
-        : withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
-
+      const altBaslik = genelGun !== -1
+        ? `${GUNLER[genelGun]} — Ders Programı` : withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
       const tablo = buildPrintTable(gunler, saatler, (g, s) => {
         const [dIdx, oIdx] = program[idx][g][s];
         return `<td><b class="pt-d">${dersler[dIdx]}</b><span class="pt-o">${ogretmenler[oIdx][0]}</span></td>`;
       });
-
       let listHtml = '';
       if (withList) {
         const ogrSet = new Map();
@@ -2846,7 +2951,6 @@ function printGenel(withList) {
             <span class="pl-branch">${ogretmenler[oIdx][1]}</span></div></div>`).join('')}
           </div>`;
       }
-
       pages += `<div class="print-page">
         ${printHeader(`${SINIFLAR[idx]} Ders Programı`, altBaslik)}
         ${tablo}${listHtml}
@@ -2854,10 +2958,9 @@ function printGenel(withList) {
     }
   } else {
     for (let ogrIdx = 0; ogrIdx < ogretmenler.length; ogrIdx++) {
-      const altBaslik = genelGun !== -1 || genelSaat !== -1
-        ? `${ogretmenler[ogrIdx][1]} — ${genelGun !== -1 ? GUNLER[genelGun] : 'Tüm Günler'} / ${genelSaat !== -1 ? `${genelSaat+1}. Saat` : 'Tüm Saatler'}`
+      const altBaslik = genelGun !== -1
+        ? `${ogretmenler[ogrIdx][1]} — ${GUNLER[genelGun]}`
         : `${ogretmenler[ogrIdx][1]}${withList ? ' — Program ve Sınıf Listesi' : ' — Ders Programı'}`;
-
       const tablo = buildPrintTable(gunler, saatler, (g, s) => {
         for (let i = 0; i < SINIFLAR.length; i++) {
           const [dIdx, pOgrIdx] = program[i][g][s];
@@ -2866,7 +2969,6 @@ function printGenel(withList) {
         }
         return `<td class="pt-empty">—</td>`;
       });
-
       let listHtml = '';
       if (withList) {
         const snfSet = new Set();
@@ -2881,18 +2983,15 @@ function printGenel(withList) {
             <span class="pl-name">${SINIFLAR[i]}</span></div></div>`).join('')}
           </div>`;
       }
-
       pages += `<div class="print-page">
         ${printHeader(ogretmenler[ogrIdx][0], altBaslik)}
         ${tablo}${listHtml}
       </div>`;
     }
   }
-
   const root = document.getElementById('print-root');
   root.innerHTML = pages;
-  doPrintRaw(orientation,
-    `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}_Programlari${filtreSuffix}`);
+  doPrintRaw(orientation, `Genel_${genelMod === 'sinif' ? 'Sinif' : 'Ogretmen'}_Programlari${filtreSuffix}`);
 }
 
 
@@ -2912,27 +3011,39 @@ function printKarne() {
     const avg = parts.reduce((a,b) => a+b, 0) / parts.length;
     tsaat += d[dIdx]; tnot += d[dIdx] * avg;
 
-    // Web'deki basamak seçimini oku (_karneDecimals)
-    const dec = (window._karneDecimals && window._karneDecimals[dIdx]) || 4;
+    // DOM'dan mevcut gösterilen basamak sayısını oku
+    const domSpan = document.querySelector(`#karne-result [data-didx="${dIdx}"]`);
+    let dec = 4;
+    if (domSpan) {
+      const txt = domSpan.textContent.trim();
+      const dotIdx = txt.indexOf('.');
+      dec = dotIdx !== -1 ? txt.length - dotIdx - 1 : 4;
+    }
 
     rows += `<tr>
       <td><b class="pt-d">${dersler[dIdx]}</b></td>
-      <td style="text-align:center;vertical-align:middle;font-size:6.5pt;color:#888;">${parts.length} not</td>
-      <td style="text-align:right;vertical-align:middle;font-size:8pt;font-weight:700;">${avg.toFixed(dec)}</td>
+      <td style="text-align:center;vertical-align:middle;font-size:7pt;color:#888;">${parts.length} not</td>
+      <td style="text-align:right;vertical-align:middle;font-size:8.5pt;font-weight:700;font-family:'Space Mono',monospace;">${avg.toFixed(dec)}</td>
     </tr>`;
   }
   if (!herhangiVar) return;
   const genel = tnot / tsaat;
 
-  // Genel ortalama basamak sayısını da web'den al
-  const genelDec = window._karneGenelDecimal || 4;
+  // Genel ortalama DOM'dan basamak oku
+  const genelDomSpan = document.querySelector('#karne-result .karne-avg span:last-child');
+  let genelDec = 4;
+  if (genelDomSpan) {
+    const txt = genelDomSpan.textContent.trim();
+    const dotIdx = txt.indexOf('.');
+    genelDec = dotIdx !== -1 ? txt.length - dotIdx - 1 : 4;
+  }
 
   const body = `
     <table class="pt pt-karne">
       <colgroup>
         <col style="width:auto">
         <col style="width:28mm">
-        <col style="width:35mm">
+        <col style="width:38mm">
       </colgroup>
       <thead><tr>
         <th style="text-align:left;padding-left:4pt;">DERS</th>
@@ -2942,7 +3053,7 @@ function printKarne() {
       <tbody>${rows}</tbody>
     </table>
     <div class="pk-avg">
-      <span class="pk-label">AĞIRLIKLI ORTALAMA</span>
+      <span class="pk-label">Ağırlıklı Ortalama</span>
       <span class="pk-num">${genel.toFixed(genelDec)}</span>
     </div>`;
 
