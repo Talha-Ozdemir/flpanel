@@ -939,116 +939,328 @@
   ============================================================ */
 
 
-  /* ============================================================
-     PRINT CSS
-  ============================================================ */
+  /* ==========================================================
+     PRINT CSS  —  class isimleri JS ile birebir eşleştirildi
+     Boyutlar: A4 landscape 285×198mm, portrait 198×285mm
+  ========================================================== */
   @media print {
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
 
-    html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-    body > *:not(#print-root) { display: none !important; }
-    #print-root { display: block !important; font-family: 'Space Mono', monospace; color: #000; background: #fff; }
-
-    .print-page { page-break-after: always; background: #fff; overflow: hidden; }
-    .print-page:last-child { page-break-after: avoid; }
-
-    /* HEADER */
-    .print-header {
-      display: flex; align-items: center;
-      background: #1a1a1a;
-      padding: 5mm 6mm 4mm;
-      margin-bottom: 0;
+    /* ── Genel sıfırlama ── */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      box-sizing: border-box;
     }
-    .print-header-left { display: flex; align-items: center; gap: 3mm; }
-    .print-logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 18pt; font-weight: 900;
-      color: #fff; letter-spacing: 2px;
-    }
-    .print-header-divider {
-      width: 0.3mm; height: 7mm;
-      background: rgba(255,255,255,0.35);
-      margin: 0 1mm;
-    }
-    .print-school-info { font-size: 6pt; color: rgba(255,255,255,0.55); line-height: 1.7; letter-spacing: 1px; }
-
-    .print-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 14pt; font-weight: 800;
-      color: #0a0a0a; margin: 4mm 6mm 1mm;
-    }
-    .print-sub {
-      font-size: 6.5pt; letter-spacing: 2px;
-      color: #666; margin: 0 6mm 2mm;
-    }
-    .print-rule {
-      height: 0.2mm; background: #ddd;
-      margin: 0 6mm 3mm;
+    html, body { background:#fff !important; margin:0 !important; padding:0 !important; }
+    body > *:not(#print-root) { display:none !important; }
+    #print-root {
+      display:block !important;
+      background:#fff;
+      font-family:'Space Mono', monospace;
+      color:#000;
     }
 
-    /* TABLO */
-    .print-table {
-      width: calc(100% - 12mm);
-      margin: 0 6mm;
-      border-collapse: collapse;
-      font-size: 7.5pt;
-      table-layout: fixed;
+    /* ── Sayfa ── */
+    .print-page {
+      width:100%;
+      background:#fff;
+      page-break-after: always;
+      overflow:hidden;
     }
-    .print-table th {
-      background: #1a1a1a; color: #fff;
-      padding: 3pt 4pt;
-      font-size: 7pt; font-weight: 700;
-      letter-spacing: 0.5px;
-      text-align: center; text-transform: uppercase;
-    }
-    .print-table td {
-      border: 0.2mm solid #ddd;
-      padding: 3pt 4pt;
-      vertical-align: top;
-    }
-    .print-table td.print-saat {
-      background: #f5f5f5;
-      text-align: center;
-      font-size: 6.5pt; color: #555;
-      width: 18mm;
-    }
-    .print-table tr:nth-child(even) td:not(.print-saat) { background: #fafafa; }
-    .print-ders { display: block; font-weight: 700; font-size: 7.5pt; color: #0a0a0a; margin-bottom: 1pt; }
-    .print-ogr  { display: block; font-size: 6.5pt; color: #888; }
-    .print-cuma-saat { font-size: 5.5pt; color: #aaa; }
-    .print-empty { color: #ccc; text-align: center; }
+    .print-page:last-child { page-break-after:avoid; }
 
-    /* LİSTE */
-    .print-list-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 8pt; font-weight: 800;
-      letter-spacing: 2px; color: #0a0a0a;
-      margin: 5mm 6mm 1.5mm;
-    }
-    .print-list-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2mm; margin: 0 6mm;
-    }
-    .print-list-card {
-      display: flex; align-items: flex-start; gap: 2mm;
-      border: 0.2mm solid #ddd; padding: 2mm 2.5mm;
-      background: #fff;
-    }
-    .print-list-accent { width: 1.5mm; min-height: 6mm; background: #1a1a1a; flex-shrink: 0; }
-    .print-list-name  { display: block; font-weight: 700; font-size: 7pt; color: #0a0a0a; }
-    .print-list-branch { display: block; font-size: 6pt; color: #888; }
+    /* ── HEADER — BEYAZ ── */
+    /*  HTML yapısı (printHeader fonksiyonu):
+        <div class="ph">
+          <div class="ph-top">
+            <span class="ph-logo">FL</span>
+            <div class="ph-sep"></div>
+            <div class="ph-school">
+              <span>ANKARA FEN LİSESİ</span>
+              <span>DERS PROGRAMI PANELİ</span>
+            </div>
+          </div>
+          <div class="ph-line"></div>
+          <div class="ph-title">…</div>
+          <div class="ph-sub">…</div>
+          <div class="ph-rule"></div>
+        </div>
+    */
+    .ph { margin-bottom:1.5mm; }
 
-    /* KARNE */
-    .print-karne-avg {
-      display: flex; justify-content: space-between; align-items: center;
-      background: #1a1a1a; color: #fff;
-      margin: 3mm 6mm 0; padding: 3mm 5mm;
+    .ph-top {
+      display:flex;
+      align-items:center;
+      gap:2.5mm;
+      padding-bottom:2mm;
     }
-    .print-karne-avg span { font-size: 7.5pt; letter-spacing: 1.5px; }
-    .print-karne-num { font-family: 'Syne', sans-serif; font-size: 16pt; font-weight: 900; }
-    .print-table th:last-child, .print-table td:last-child { text-align: right; }
+    .ph-logo {
+      font-family:'Syne', sans-serif;
+      font-size:16pt;
+      font-weight:900;
+      color:#000;
+      letter-spacing:1.5px;
+      line-height:1;
+      flex-shrink:0;
+    }
+    .ph-sep {
+      width:0.25mm;
+      height:5.5mm;
+      background:#ccc;
+      flex-shrink:0;
+    }
+    .ph-school {
+      display:flex;
+      flex-direction:column;
+      gap:0.5mm;
+      font-size:5pt;
+      color:#aaa;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      line-height:1;
+    }
+
+    /* Kalın üst çizgi — FL'den tam sayfa genişliğine */
+    .ph-line {
+      height:0.6mm;
+      background:#000;
+      margin-bottom:2mm;
+    }
+
+    .ph-title {
+      font-family:'Syne', sans-serif;
+      font-size:13pt;
+      font-weight:800;
+      color:#000;
+      line-height:1.1;
+      margin-bottom:0.8mm;
+    }
+    .ph-sub {
+      font-size:5pt;
+      color:#bbb;
+      letter-spacing:2.5px;
+      text-transform:uppercase;
+    }
+    /* İnce alt kural — tablo öncesi ayraç */
+    .ph-rule {
+      height:0.15mm;
+      background:#ddd;
+      margin-top:2mm;
+      margin-bottom:2mm;
+    }
+
+    /* ── TABLO ── */
+    /*  <table class="pt"> içinde
+        <colgroup><col class="pt-cs"><col class="pt-cd">…</colgroup>
+        Saat hücresi: <td class="pt-s">
+        Ders hücresi: <td>
+          <b class="pt-d">Ders adı</b>
+          <span class="pt-o">Öğretmen adı</span>
+        </td>
+    */
+    .pt {
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      font-family:'Space Mono', monospace;
+    }
+
+    /* Saat kolonu genişliği — col üzerinde, table-layout:fixed için */
+    .pt-cs { width:20mm; }
+    /* Gün kolonları otomatik dağılır */
+
+    /* Thead */
+    .pt thead tr { height:6.5mm; }
+    .pt th {
+      background:#111;
+      color:#fff;
+      font-size:6pt;
+      font-weight:700;
+      letter-spacing:0.8px;
+      text-align:center;
+      text-transform:uppercase;
+      vertical-align:middle;
+      padding:0 2pt;
+      overflow:hidden;
+    }
+    /* Saat th da ortalanmış */
+    .pt th:first-child { background:#333; }
+
+    /* Tbody td ortak */
+    .pt tbody td {
+      border:0.2mm solid #e8e8e8;
+      padding:2.5pt 3pt;
+      vertical-align:top;
+      overflow:hidden;
+    }
+    /* Zebra */
+    .pt tbody tr:nth-child(even) td { background:#f9f9f9; }
+    .pt tbody tr:nth-child(even) td.pt-s { background:#efefef !important; }
+
+    /* Saat hücresi */
+    .pt-s {
+      background:#f5f5f5 !important;
+      text-align:center;
+      padding:3pt 2pt;
+    }
+    .pt-sn {
+      display:block;
+      font-size:6.5pt;
+      font-weight:700;
+      color:#222;
+      line-height:1.3;
+    }
+    .pt-st {
+      display:block;
+      font-size:5.5pt;
+      color:#777;
+      margin-top:1pt;
+      line-height:1.3;
+    }
+    .pt-sc {
+      display:block;
+      font-size:5pt;
+      color:#bbb;
+      margin-top:0.5pt;
+    }
+
+    /* Ders hücresi içeriği */
+    .pt-d {
+      display:block;
+      font-weight:700;
+      font-size:7.5pt;
+      color:#000;
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+    .pt-o {
+      display:block;
+      font-size:6pt;
+      color:#999;
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+      margin-top:1.5pt;
+    }
+    .pt-empty {
+      text-align:center;
+      vertical-align:middle !important;
+      color:#ddd;
+      font-size:10pt;
+    }
+
+    /* ── ROW HEIGHT — orientation'a göre ── */
+    /* doPrintRaw, #print-root'a data-ori="landscape"|"portrait" ekler */
+
+    /* Landscape: sadece tablo, satırlar geniş
+       Hesap: (198-17mm header - 6.5mm thead) / 8 satır ≈ 21.8mm → 21mm */
+    #print-root[data-ori="landscape"] .pt tbody td {
+      height:21mm;
+      max-height:21mm;
+    }
+
+    /* Portrait: tablo + liste, satırlar sıkı
+       Hesap: tablo için 102mm, 8×12mm=96mm + 6.5mm thead = 102.5mm ✓ */
+    #print-root[data-ori="portrait"] .pt tbody td {
+      height:12mm;
+      max-height:12mm;
+    }
+
+    /* ── LİSTE ── */
+    /*  <div class="pl-title">…</div>
+        <div class="pl-grid">
+          <div class="pl-card">
+            <div class="pl-accent"></div>
+            <div class="pl-body">
+              <span class="pl-name">…</span>
+              <span class="pl-branch">…</span>
+            </div>
+          </div>
+        </div>
+    */
+    .pl-title {
+      font-family:'Syne', sans-serif;
+      font-size:7pt;
+      font-weight:800;
+      letter-spacing:2px;
+      color:#000;
+      text-transform:uppercase;
+      margin-top:4mm;
+      margin-bottom:1.5mm;
+      padding-bottom:1mm;
+      border-bottom:0.5mm solid #000;
+    }
+    .pl-grid {
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:1.5mm;
+    }
+    .pl-card {
+      display:flex;
+      align-items:stretch;
+      border:0.15mm solid #e0e0e0;
+      overflow:hidden;
+    }
+    .pl-accent {
+      width:2mm;
+      background:#000;
+      flex-shrink:0;
+    }
+    .pl-body {
+      padding:1.5mm 2mm;
+      overflow:hidden;
+    }
+    .pl-name {
+      display:block;
+      font-size:7pt;
+      font-weight:700;
+      color:#000;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .pl-branch {
+      display:block;
+      font-size:5.5pt;
+      color:#999;
+    }
+
+    /* ── KARNE ── */
+    /*  .pt tablo ile aynı yapı
+        <div class="pk-avg">
+          <span class="pk-label">AĞIRLIKLI ORTALAMA</span>
+          <span class="pk-num">87.3333</span>
+        </div>
+    */
+    .pk-avg {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#111;
+      margin-top:2mm;
+      padding:3mm 5mm;
+    }
+    .pk-label {
+      font-size:6pt;
+      color:#ccc;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+    .pk-num {
+      font-family:'Syne', sans-serif;
+      font-size:14pt;
+      font-weight:900;
+      color:#fff;
+    }
+
+    /* Karne satırları kısa (tek satır içerik) */
+    #print-root[data-ori="portrait"] .pt-karne tbody td {
+      height:8mm;
+      max-height:8mm;
+    }
   }
+
 </style>
 </head>
 <body>
@@ -2412,46 +2624,68 @@ function closePdfModal() {
 
 function buildPrintTable(gunler, saatler, cellFn) {
   const tekGun = gunler.length === 1;
-  let html = `<table class="print-table"><thead><tr>
+  const nCols = gunler.length + 1; // saat + gün sayısı
+
+  // colgroup: .pt-cs saat kolonu (width:20mm CSS'de), .pt-cd gün kolonları
+  const colgroup = `<colgroup>
+    <col class="pt-cs">
+    ${gunler.map(() => '<col class="pt-cd">').join('')}
+  </colgroup>`;
+
+  const thead = `<thead><tr>
     <th>SAAT</th>
     ${gunler.map(g => `<th>${GUNLER[g].toUpperCase()}</th>`).join('')}
-  </tr></thead><tbody>`;
+  </tr></thead>`;
 
+  let tbody = '<tbody>';
   for (const s of saatler) {
     const [nS, nE] = SAATLER_NORMAL[s];
     const [cS, cE] = SAATLER_CUMA[s];
-    html += `<tr>`;
-    // Saat sütunu
+    const hasCuma = gunler.includes(4);
+
+    // Saat hücresi: tek gün → o güne özel saat, çok gün → normal + cuma notu
+    let saatAralik;
+    let cumaSpan = '';
     if (tekGun) {
       const [gS, gE] = getSaatLabel(gunler[0], s);
-      html += `<td class="print-saat"><strong>${s+1}. Saat</strong><br>${gS}–${gE}</td>`;
+      saatAralik = `${gS}–${gE}`;
     } else {
-      html += `<td class="print-saat"><strong>${s+1}. Saat</strong><br>${nS}–${nE}${gunler.includes(4) ? `<br><span class="print-cuma-saat">${cS}–${cE}</span>` : ''}</td>`;
+      saatAralik = `${nS}–${nE}`;
+      if (hasCuma) {
+        cumaSpan = `<span class="pt-sc">C: ${cS}–${cE}</span>`;
+      }
     }
-    for (const g of gunler) {
-      html += cellFn(g, s);
-    }
-    html += `</tr>`;
+
+    const saatHucre = `<td class="pt-s">
+      <span class="pt-sn">${s+1}.</span>
+      <span class="pt-st">${saatAralik}</span>
+      ${cumaSpan}
+    </td>`;
+
+    const dersHucreler = gunler.map(g => cellFn(g, s)).join('');
+    tbody += `<tr>${saatHucre}${dersHucreler}</tr>`;
   }
-  html += `</tbody></table>`;
-  return html;
+  tbody += '</tbody>';
+
+  return `<table class="pt">${colgroup}${thead}${tbody}</table>`;
 }
 
+
 function printHeader(baslik, altBaslik) {
-  return `
-  <div class="print-header">
-    <div class="print-header-left">
-      <span class="print-logo">FL</span>
-      <div class="print-header-divider"></div>
-      <div class="print-school-info">
-        <div>ANKARA FEN LİSESİ</div>
-        <div>DERS PROGRAMI PANELİ</div>
+  return `<div class="ph">
+    <div class="ph-top">
+      <span class="ph-logo">FL</span>
+      <div class="ph-sep"></div>
+      <div class="ph-school">
+        <span>ANKARA FEN LİSESİ</span>
+        <span>DERS PROGRAMI PANELİ</span>
       </div>
     </div>
-  </div>
-  <div class="print-title">${baslik}</div>
-  <div class="print-sub">${altBaslik.toUpperCase()}</div>
-  <div class="print-rule"></div>`;
+    <div class="ph-line"></div>
+    <div class="ph-title">${baslik}</div>
+    <div class="ph-sub">${altBaslik.toUpperCase()}</div>
+    <div class="ph-rule"></div>
+  </div>`;
 }
 
 function printSinif(idx, withList) {
@@ -2461,7 +2695,7 @@ function printSinif(idx, withList) {
 
   const tablo = buildPrintTable(gunler, saatler, (g, s) => {
     const [dIdx, oIdx] = program[idx][g][s];
-    return `<td><span class="print-ders">${dersler[dIdx]}</span><span class="print-ogr">${ogretmenler[oIdx][0]}</span></td>`;
+    return `<td><b class="pt-d">${dersler[dIdx]}</b><span class="pt-o">${ogretmenler[oIdx][0]}</span></td>`;
   });
 
   let listHtml = '';
@@ -2475,12 +2709,14 @@ function printSinif(idx, withList) {
     }
     if (hasGrMzk) ogrSet.set(32, ogretmenler[32][1]);
     const sorted = [...ogrSet.entries()].sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1]));
-    listHtml = `<div class="print-list-title">ÖĞRETMEN LİSTESİ</div>
-      <div class="print-list-grid">
-        ${sorted.map(([oIdx]) => `<div class="print-list-card">
-          <div class="print-list-accent"></div>
-          <span class="print-list-name">${ogretmenler[oIdx][0]}</span>
-          <span class="print-list-branch">${ogretmenler[oIdx][1]}</span>
+    listHtml = `<div class="pl-title">ÖĞRETMEN LİSTESİ</div>
+      <div class="pl-grid">
+        ${sorted.map(([oIdx]) => `<div class="pl-card">
+          <div class="pl-accent"></div>
+          <div class="pl-body">
+            <span class="pl-name">${ogretmenler[oIdx][0]}</span>
+            <span class="pl-branch">${ogretmenler[oIdx][1]}</span>
+          </div>
         </div>`).join('')}
       </div>`;
   }
@@ -2508,9 +2744,9 @@ function printOgretmen(ogrIdx, withList) {
     for (let i = 0; i < SINIFLAR.length; i++) {
       const [dIdx, pOgrIdx] = program[i][g][s];
       if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28))
-        return `<td><span class="print-ders">${SINIFLAR[i]}</span><span class="print-ogr">${dersler[dIdx]}</span></td>`;
+        return `<td><b class="pt-d">${SINIFLAR[i]}</b><span class="pt-o">${dersler[dIdx]}</span></td>`;
     }
-    return `<td class="print-empty">—</td>`;
+    return `<td class="pt-empty">—</td>`;
   });
 
   let listHtml = '';
@@ -2521,11 +2757,13 @@ function printOgretmen(ogrIdx, withList) {
         const [dIdx, pOgrIdx] = program[i][g][s];
         if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28)) snfSet.add(i);
       }
-    listHtml = `<div class="print-list-title">GİRDİĞİ SINIFLAR</div>
-      <div class="print-list-grid">
-        ${[...snfSet].sort((a,b)=>a-b).map(i => `<div class="print-list-card">
-          <div class="print-list-accent"></div>
-          <span class="print-list-name">${SINIFLAR[i]}</span>
+    listHtml = `<div class="pl-title">GİRDİĞİ SINIFLAR</div>
+      <div class="pl-grid">
+        ${[...snfSet].sort((a,b)=>a-b).map(i => `<div class="pl-card">
+          <div class="pl-accent"></div>
+          <div class="pl-body">
+            <span class="pl-name">${SINIFLAR[i]}</span>
+          </div>
         </div>`).join('')}
       </div>`;
   }
@@ -2553,7 +2791,7 @@ function printGenel(withList) {
     for (let idx = 0; idx < SINIFLAR.length; idx++) {
       const tablo = buildPrintTable(gunler, saatler, (g, s) => {
         const [dIdx, oIdx] = program[idx][g][s];
-        return `<td><span class="print-ders">${dersler[dIdx]}</span><span class="print-ogr">${ogretmenler[oIdx][0]}</span></td>`;
+        return `<td><b class="pt-d">${dersler[dIdx]}</b><span class="pt-o">${ogretmenler[oIdx][0]}</span></td>`;
       });
       let listHtml = '';
       if (withList) {
@@ -2566,11 +2804,11 @@ function printGenel(withList) {
         }
         if (hasGrMzk) ogrSet.set(32, ogretmenler[32][1]);
         const sorted = [...ogrSet.entries()].sort((a,b) => ogretmenler[a[0]][1].localeCompare(ogretmenler[b[0]][1]));
-        listHtml = `<div class="print-list-title">ÖĞRETMEN LİSTESİ</div>
-          <div class="print-list-grid">${sorted.map(([oIdx]) =>
-            `<div class="print-list-card"><div class="print-list-accent"></div>
-            <span class="print-list-name">${ogretmenler[oIdx][0]}</span>
-            <span class="print-list-branch">${ogretmenler[oIdx][1]}</span></div>`).join('')}
+        listHtml = `<div class="pl-title">ÖĞRETMEN LİSTESİ</div>
+          <div class="pl-grid">${sorted.map(([oIdx]) =>
+            `<div class="pl-card"><div class="pl-accent"></div><div class="pl-body">
+            <span class="pl-name">${ogretmenler[oIdx][0]}</span>
+            <span class="pl-branch">${ogretmenler[oIdx][1]}</span></div></div>`).join('')}
           </div>`;
       }
       pages += `<div class="print-page">
@@ -2584,9 +2822,9 @@ function printGenel(withList) {
         for (let i = 0; i < SINIFLAR.length; i++) {
           const [dIdx, pOgrIdx] = program[i][g][s];
           if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28))
-            return `<td><span class="print-ders">${SINIFLAR[i]}</span><span class="print-ogr">${dersler[dIdx]}</span></td>`;
+            return `<td><b class="pt-d">${SINIFLAR[i]}</b><span class="pt-o">${dersler[dIdx]}</span></td>`;
         }
-        return `<td class="print-empty">—</td>`;
+        return `<td class="pt-empty">—</td>`;
       });
       let listHtml = '';
       if (withList) {
@@ -2596,10 +2834,10 @@ function printGenel(withList) {
             const [dIdx, pOgrIdx] = program[i][g][s];
             if (pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28)) snfSet.add(i);
           }
-        listHtml = `<div class="print-list-title">GİRDİĞİ SINIFLAR</div>
-          <div class="print-list-grid">${[...snfSet].sort((a,b)=>a-b).map(i =>
-            `<div class="print-list-card"><div class="print-list-accent"></div>
-            <span class="print-list-name">${SINIFLAR[i]}</span></div>`).join('')}
+        listHtml = `<div class="pl-title">GİRDİĞİ SINIFLAR</div>
+          <div class="pl-grid">${[...snfSet].sort((a,b)=>a-b).map(i =>
+            `<div class="pl-card"><div class="pl-accent"></div><div class="pl-body">
+            <span class="pl-name">${SINIFLAR[i]}</span></div></div>`).join('')}
           </div>`;
       }
       pages += `<div class="print-page">
@@ -2630,19 +2868,33 @@ function printKarne() {
     herhangiVar = true;
     const avg = parts.reduce((a,b) => a+b, 0) / parts.length;
     tsaat += d[dIdx]; tnot += d[dIdx] * avg;
-    rows += `<tr><td>${dersler[dIdx]}</td><td>${parts.length} not</td><td>${avg.toFixed(4)}</td></tr>`;
+    rows += `<tr>
+      <td><b class="pt-d">${dersler[dIdx]}</b></td>
+      <td style="text-align:center;vertical-align:middle;font-size:6.5pt;color:#888;">${parts.length} not</td>
+      <td style="text-align:right;vertical-align:middle;font-size:7pt;font-weight:700;">${avg.toFixed(4)}</td>
+    </tr>`;
   }
   if (!herhangiVar) return;
   const genel = (tnot / tsaat).toFixed(4);
 
-  const body = `<table class="print-table">
-    <thead><tr><th>DERS</th><th>NOT SAYISI</th><th>ORTALAMA</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div class="print-karne-avg">
-    <span>AĞIRLIKLI ORTALAMA</span>
-    <span class="print-karne-num">${genel}</span>
-  </div>`;
+  const body = `
+    <table class="pt pt-karne">
+      <colgroup>
+        <col style="width:auto">
+        <col style="width:28mm">
+        <col style="width:32mm">
+      </colgroup>
+      <thead><tr>
+        <th style="text-align:left;padding-left:4pt;">DERS</th>
+        <th>NOT SAYISI</th>
+        <th style="text-align:right;padding-right:4pt;">ORTALAMA</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="pk-avg">
+      <span class="pk-label">AĞIRLIKLI ORTALAMA</span>
+      <span class="pk-num">${genel}</span>
+    </div>`;
 
   doPrint(
     printHeader(`Karne — ${sinifAdi}`, 'Not Dökümü ve Ağırlıklı Ortalama'),
@@ -2650,6 +2902,7 @@ function printKarne() {
     `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}`
   );
 }
+
 
 function doPrint(headerHtml, bodyHtml, orientation, fileName) {
   const root = document.getElementById('print-root');
@@ -2664,16 +2917,20 @@ function doPrintRaw(orientation, fileName) {
     styleEl.id = 'print-orientation-style';
     document.head.appendChild(styleEl);
   }
-  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 8mm 10mm; }`;
+  // margin: 6mm — hesaplara uygun (285×198 landscape, 198×285 portrait)
+  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 6mm; }`;
   const origTitle = document.title;
   if (fileName) document.title = fileName;
   const root = document.getElementById('print-root');
+  // data-ori CSS selector ile row height belirleniyor
+  root.setAttribute('data-ori', orientation);
   root.style.display = 'block';
   setTimeout(() => {
     window.print();
     root.style.display = 'none';
+    root.removeAttribute('data-ori');
     if (fileName) document.title = origTitle;
-  }, 120);
+  }, 150);
 }
 
 function toggleTheme() {
