@@ -536,8 +536,9 @@
   }
 
   .karne-ders-row {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 60px 100px;
+    align-items: center;
     padding: 8px 0;
     border-bottom: 1px solid var(--border);
     font-size: 0.7rem;
@@ -1765,8 +1766,8 @@ function calcKarne() {
     tnot += d[dIdx] * avg;
     rows += `<div class="karne-ders-row">
       <span class="d${dIdx}">${dersler[dIdx]}</span>
-      <span style="color:var(--muted);font-size:0.6rem;">${parts.length} not</span>
-      <span>${avg.toFixed(6)}</span>
+      <span style="color:var(--muted);font-size:0.6rem;text-align:center;">${parts.length} not</span>
+      <span style="text-align:right;cursor:pointer;user-select:none;" onclick="toggleKarneDecimal(this,${avg})" title="Daha fazla basamak için tıkla">${avg.toFixed(4)}</span>
     </div>`;
   }
 
@@ -1782,7 +1783,7 @@ function calcKarne() {
       ${rows}
       <div class="karne-avg" style="color:${renk}">
         <span>Ağırlıklı Ortalama</span>
-        <span>${genel.toFixed(6)}</span>
+        <span style="cursor:pointer;user-select:none;" onclick="toggleKarneDecimal(this,${genel})" title="Daha fazla basamak için tıkla">${genel.toFixed(4)}</span>
       </div>
     </div>`;
 }
@@ -1825,6 +1826,12 @@ setInterval(() => {
   if (document.getElementById('panel-suan').classList.contains('active')) renderSuan();
 }, 30000);
 
+
+function toggleKarneDecimal(el, val) {
+  const cur = el.textContent.trim();
+  const short = val.toFixed(4);
+  el.textContent = cur === short ? val.toFixed(10) : short;
+}
 
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
