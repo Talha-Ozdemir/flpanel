@@ -962,6 +962,7 @@
       padding: 0;
       background: #fff;
       box-sizing: border-box;
+      overflow: hidden;
     }
     .print-page:last-child { page-break-after: avoid; }
 
@@ -1007,7 +1008,7 @@
     .print-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 8pt;
+      font-size: 9pt;
       table-layout: fixed;
     }
     .print-table th {
@@ -1015,13 +1016,13 @@
       color: #fff;
       padding: 5px 6px;
       text-align: center;
-      font-size: 7pt;
+      font-size: 8pt;
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
     .print-table td {
       border: 1px solid #ccc;
-      padding: 5px 6px;
+      padding: 6px 7px;
       vertical-align: top;
     }
     .print-table td:first-child {
@@ -1033,19 +1034,19 @@
     }
     .print-cell-ders {
       font-weight: 700;
-      font-size: 8pt;
+      font-size: 9pt;
       display: block;
       margin-bottom: 1px;
       overflow: hidden;
     }
     .print-cell-ogr {
-      font-size: 6.5pt;
+      font-size: 7.5pt;
       color: #555;
       display: block;
       overflow: hidden;
     }
     .print-cell-snf {
-      font-size: 7pt;
+      font-size: 8pt;
       font-weight: 700;
       color: #333;
       display: block;
@@ -1640,10 +1641,7 @@ function renderSinif() {
   }
   if (pdfBtn) pdfBtn.style.display = '';
 
-  // Yeni sınıf seçince filtreleri sıfırla
-  sinifGun = -1; sinifSaat = -1;
-  document.querySelectorAll('#sinif-gun-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
-  document.querySelectorAll('#sinif-saat-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
+
 
   const cur = getCurrentLesson();
 
@@ -1814,8 +1812,7 @@ function selectTeacher(idx) {
 
   // Yeni öğretmen seçince filtreleri sıfırla
   ogrGun = -1; ogrSaat = -1;
-  document.querySelectorAll('#ogr-gun-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
-  document.querySelectorAll('#ogr-saat-chips .chip').forEach((c,i) => c.classList.toggle('selected', i===0));
+  buildOgrChips();
 
   renderOgretmen(idx);
 }
@@ -2227,6 +2224,10 @@ function switchTab(name) {
   if (name === 'sinif') {
     document.getElementById('sinif-select').value = '';
     document.getElementById('sinif-table').innerHTML = '';
+    document.getElementById('sinif-filters').style.display = 'none';
+    document.getElementById('pdf-btn-sinif').style.display = 'none';
+    sinifGun = -1; sinifSaat = -1;
+    buildSinifChips();
   }
   if (name === 'ogretmen') {
     if (selectedOgr !== null) {
@@ -2234,6 +2235,10 @@ function switchTab(name) {
       selectedOgr = null;
     }
     document.getElementById('ogretmen-table').innerHTML = '';
+    document.getElementById('ogretmen-filters').style.display = 'none';
+    document.getElementById('pdf-btn-ogretmen').style.display = 'none';
+    ogrGun = -1; ogrSaat = -1;
+    buildOgrChips();
     const sb = document.getElementById('search-box-ogr'); if(sb) { sb.value=''; filterTeachers(''); }
   }
 }
@@ -2738,7 +2743,7 @@ function doPrintRaw(orientation, fileName) {
     styleEl.id = 'print-orientation-style';
     document.head.appendChild(styleEl);
   }
-  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 8mm 8mm; } @page :first { margin: 8mm 8mm; }`;
+  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 6mm; }`;
 
   // Dosya adı için title geçici değiştir
   const origTitle = document.title;
