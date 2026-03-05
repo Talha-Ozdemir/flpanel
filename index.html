@@ -832,6 +832,16 @@
         <option value="">— Sınıf Seç —</option>
       </select>
     </div>
+    <div class="selector-row" id="sinif-filters" style="display:none">
+      <div>
+        <div style="font-size:0.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Gün</div>
+        <div class="chip-group" id="sinif-gun-chips"></div>
+      </div>
+      <div>
+        <div style="font-size:0.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Saat</div>
+        <div class="chip-group" id="sinif-saat-chips"></div>
+      </div>
+    </div>
     <div id="sinif-table"></div>
   </div>
 
@@ -841,6 +851,16 @@
     <div class="section-sub">Bir öğretmen seçin</div>
     <input id="search-box-ogr" class="search-box" type="text" placeholder="İsimle ara…" oninput="filterTeachers(this.value)">
     <div class="teacher-grid" id="teacher-grid"></div>
+    <div class="selector-row" id="ogretmen-filters" style="display:none;margin-top:16px;">
+      <div>
+        <div style="font-size:0.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Gün</div>
+        <div class="chip-group" id="ogr-gun-chips"></div>
+      </div>
+      <div>
+        <div style="font-size:0.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Saat</div>
+        <div class="chip-group" id="ogr-saat-chips"></div>
+      </div>
+    </div>
     <div style="margin-top:28px;" id="ogretmen-table"></div>
   </div>
 
@@ -1252,13 +1272,19 @@ function renderSinif() {
   if (isNaN(idx)) return;
   const cur = getCurrentLesson();
 
+  // Filtreleri göster
+  document.getElementById('sinif-filters').style.display = '';
+
+  const gunler = sinifGun === -1 ? [0,1,2,3,4] : [sinifGun];
+  const saatler = sinifSaat === -1 ? [0,1,2,3,4,5,6,7] : [sinifSaat];
+
   let html = `<div class="schedule-wrap"><table>
     <thead><tr>
       <th>Saat</th>
-      ${GUNLER.map(g=>`<th>${g}</th>`).join('')}
+      ${gunler.map(g=>`<th>${GUNLER[g]}</th>`).join('')}
     </tr></thead><tbody>`;
 
-  for (let s = 0; s < 8; s++) {
+  for (let s of saatler) {
     const [nStart, nEnd] = SAATLER_NORMAL[s];
     const [cStart, cEnd] = SAATLER_CUMA[s];
     const cumaFarkli = cStart !== nStart;
@@ -1268,7 +1294,7 @@ function renderSinif() {
       <span class="day-label">${s+1}. Saat</span>
     </td>`;
 
-    for (let g = 0; g < 5; g++) {
+    for (let g of gunler) {
       const [dIdx, oIdx] = program[idx][g][s];
       const isCur = cur && cur.gun === g && cur.saat === s;
       const [gStart, gEnd] = getSaatLabel(g, s);
@@ -1318,6 +1344,67 @@ function renderSinif() {
 // ============================================================
 let selectedOgr = null;
 
+
+// ============================================================
+// SINIF FİLTRE
+// ============================================================
+let sinifGun = -1, sinifSaat = -1;
+
+function buildSinifChips() {
+  const gunGroup = document.getElementById('sinif-gun-chips');
+  const saatGroup = document.getElementById('sinif-saat-chips');
+  let gHtml = `<div class="chip selected" onclick="setSinifGun(-1,this)">Tüm Günler</div>`;
+  GUNLER.forEach((g,i) => { gHtml += `<div class="chip" onclick="setSinifGun(${i},this)">${g}</div>`; });
+  let sHtml = `<div class="chip selected" onclick="setSinifSaat(-1,this)">Tüm Saatler</div>`;
+  for (let i=0;i<8;i++) { sHtml += `<div class="chip" onclick="setSinifSaat(${i},this)">${i+1}. Saat</div>`; }
+  gunGroup.innerHTML = gHtml;
+  saatGroup.innerHTML = sHtml;
+}
+
+function setSinifGun(g, el) {
+  sinifGun = g;
+  document.querySelectorAll('#sinif-gun-chips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  renderSinif();
+}
+
+function setSinifSaat(s, el) {
+  sinifSaat = s;
+  document.querySelectorAll('#sinif-saat-chips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  renderSinif();
+}
+
+// ============================================================
+// ÖĞRETMEN FİLTRE
+// ============================================================
+let ogrGun = -1, ogrSaat = -1;
+
+function buildOgrChips() {
+  const gunGroup = document.getElementById('ogr-gun-chips');
+  const saatGroup = document.getElementById('ogr-saat-chips');
+  let gHtml = `<div class="chip selected" onclick="setOgrGun(-1,this)">Tüm Günler</div>`;
+  GUNLER.forEach((g,i) => { gHtml += `<div class="chip" onclick="setOgrGun(${i},this)">${g}</div>`; });
+  let sHtml = `<div class="chip selected" onclick="setOgrSaat(-1,this)">Tüm Saatler</div>`;
+  for (let i=0;i<8;i++) { sHtml += `<div class="chip" onclick="setOgrSaat(${i},this)">${i+1}. Saat</div>`; }
+  gunGroup.innerHTML = gHtml;
+  saatGroup.innerHTML = sHtml;
+}
+
+function setOgrGun(g, el) {
+  ogrGun = g;
+  document.querySelectorAll('#ogr-gun-chips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  if (selectedOgr !== null) renderOgretmen(selectedOgr);
+}
+
+function setOgrSaat(s, el) {
+  ogrSaat = s;
+  document.querySelectorAll('#ogr-saat-chips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  if (selectedOgr !== null) renderOgretmen(selectedOgr);
+}
+
 function buildTeacherGrid() {
   const grid = document.getElementById('teacher-grid');
   let html = '';
@@ -1348,19 +1435,26 @@ function selectTeacher(idx) {
 
 function renderOgretmen(ogrIdx) {
   const cur = getCurrentLesson();
+
+  // Filtreleri göster
+  document.getElementById('ogretmen-filters').style.display = '';
+
+  const gunler = ogrGun === -1 ? [0,1,2,3,4] : [ogrGun];
+  const saatler = ogrSaat === -1 ? [0,1,2,3,4,5,6,7] : [ogrSaat];
+
   let html = `<div class="section-title" style="margin-bottom:4px">${ogretmenler[ogrIdx][0]}</div>
     <div class="section-sub">${ogretmenler[ogrIdx][1]} — Ders programı</div>
     <div class="schedule-wrap"><table>
     <thead><tr>
       <th>Saat</th>
-      ${GUNLER.map(g=>`<th>${g}</th>`).join('')}
+      ${gunler.map(g=>`<th>${GUNLER[g]}</th>`).join('')}
     </tr></thead><tbody>`;
-  for (let s = 0; s < 8; s++) {
+  for (let s of saatler) {
     const [nStart, nEnd] = SAATLER_NORMAL[s];
     const [cStart] = SAATLER_CUMA[s];
     const cumaFarkli = cStart !== nStart;
     html += `<tr><td><span class="time-label">${nStart}–${nEnd}</span><span class="day-label">${s+1}. Saat</span></td>`;
-    for (let g = 0; g < 5; g++) {
+    for (let g of gunler) {
       const [gStart, gEnd] = getSaatLabel(g, s);
       const cumaTag = (g === 4 && cumaFarkli)
         ? `<span style="font-size:clamp(0.36rem,1vw,0.52rem);color:var(--accent);opacity:0.75;display:block;margin-bottom:2px;white-space:nowrap;overflow:hidden;">${gStart}–${gEnd}</span>`
@@ -1368,7 +1462,6 @@ function renderOgretmen(ogrIdx) {
       let found = false;
       for (let i = 0; i < SINIFLAR.length; i++) {
         const [dIdx, pOgrIdx] = program[i][g][s];
-        // Normal eşleşme VEYA Zahide (32) için tüm GR-MZK (28) dersleri
         const match = pOgrIdx === ogrIdx || (ogrIdx === 32 && dIdx === 28);
         if (match) {
           const isCur = cur && cur.gun === g && cur.saat === s;
@@ -1725,6 +1818,8 @@ buildSinifSelect();
 buildKarneSinif();
 buildTeacherGrid();
 buildGenelChips();
+buildSinifChips();
+buildOgrChips();
 renderSuan();
 setInterval(() => {
   if (document.getElementById('panel-suan').classList.contains('active')) renderSuan();
