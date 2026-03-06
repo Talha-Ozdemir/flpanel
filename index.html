@@ -1401,6 +1401,25 @@
   }
 
 </style>
+<script>
+// Tema init — flash önlemek için head'de
+(function() {
+  const saved = localStorage.getItem('fl-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+  } else if (saved === 'dark') {
+    // kullanıcı manuel karanlık seçmiş, kalsın
+  } else {
+    // Hiç kayıt yok → sistem temasına bak
+    // 'dark' kaydı eski versiyondan kalma olabilir, temizle
+    try { localStorage.removeItem('fl-theme'); } catch(e) {}
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.classList.add('light');
+    }
+    // Karanlık ise zaten :root karanlık — bir şey yapma
+  }
+})();
+</script>
 </head>
 <body>
 
@@ -3244,21 +3263,15 @@ function doPrintRaw(orientation, fileName) {
 
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
-  localStorage.setItem('fl-theme', isLight ? 'light' : 'dark');
-}
-(function() {
-  const saved = localStorage.getItem('fl-theme');
-  if (saved === 'light') {
-    document.documentElement.classList.add('light');
-  } else if (saved === 'dark') {
-    // karanlık — varsayılan zaten karanlık, bir şey yapma
+  // Sistem temasıyla aynıysa kaydı sil, farklıysa kaydet
+  const sysLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  if (isLight === sysLight) {
+    localStorage.removeItem('fl-theme'); // sistem temasına dön
   } else {
-    // localStorage'da kayıt yok → sistem temasına bak
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-      document.documentElement.classList.add('light');
-    }
+    localStorage.setItem('fl-theme', isLight ? 'light' : 'dark');
   }
-})();
+}
+// tema init → head'e taşındı
 </script>
 
 
