@@ -1406,17 +1406,16 @@
 (function() {
   const saved = localStorage.getItem('fl-theme');
   if (saved === 'light') {
+    // Kullanıcı manuel açık seçmiş
     document.documentElement.classList.add('light');
-  } else if (saved === 'dark') {
-    // kullanıcı manuel karanlık seçmiş, kalsın
   } else {
-    // Hiç kayıt yok → sistem temasına bak
-    // 'dark' kaydı eski versiyondan kalma olabilir, temizle
+    // 'dark' kaydı veya kayıt yok → her iki durumda da sistem temasına bak
+    // Eski 'dark' kaydını temizle
     try { localStorage.removeItem('fl-theme'); } catch(e) {}
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
       document.documentElement.classList.add('light');
     }
-    // Karanlık ise zaten :root karanlık — bir şey yapma
+    // Sistem karanlıksa :root zaten karanlık, bir şey yapma
   }
 })();
 </script>
