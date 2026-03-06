@@ -1131,7 +1131,7 @@
     }
 
     /* Saat kolonu genişliği — col üzerinde, table-layout:fixed için */
-    .pt-cs { width:20mm; }
+    .pt-cs { width:18mm; }
     /* Gün kolonları otomatik dağılır */
 
     /* Thead */
@@ -1181,17 +1181,19 @@
     }
     .pt-sn {
       display:block;
-      font-size:6.5pt;
+      font-size:6pt;
       font-weight:700;
       color:#222;
-      line-height:1.3;
+      line-height:1.2;
+      white-space:nowrap;
     }
     .pt-st {
       display:block;
-      font-size:5.5pt;
+      font-size:4.8pt;
       color:#777;
-      margin-top:1pt;
-      line-height:1.3;
+      margin-top:0.5pt;
+      line-height:1.2;
+      white-space:nowrap;
     }
     .pt-sc {
       display:block;
@@ -1248,7 +1250,7 @@
     }
     #print-root[data-ori="landscape"] .pt-d { font-size:13pt; }
     #print-root[data-ori="landscape"] .pt-o { font-size:10pt; margin-top:2pt; }
-    #print-root[data-ori="landscape"] .pt-sn { font-size:11pt; }
+    #print-root[data-ori="landscape"] .pt-sn { font-size:10pt; white-space:nowrap; }
     #print-root[data-ori="landscape"] .pt-st { font-size:8.5pt; }
     #print-root[data-ori="landscape"] .pt thead tr { height:10mm; }
     #print-root[data-ori="landscape"] .pt th { font-size:8.5pt; }
@@ -3245,7 +3247,7 @@ function doPrintRaw(orientation, fileName) {
     document.head.appendChild(styleEl);
   }
   // margin: 6mm — hesaplara uygun (285×198 landscape, 198×285 portrait)
-  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 6mm; }`;
+  styleEl.textContent = `@page { size: A4 ${orientation}; margin: 6mm; } @media print { html { -webkit-print-color-adjust: exact; print-color-adjust: exact; zoom: 1; } }`;
   const origTitle = document.title;
   if (fileName) document.title = fileName;
   const root = document.getElementById('print-root');
