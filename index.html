@@ -1181,14 +1181,14 @@
     }
     .pt-sn {
       display:block;
-      font-size:6pt;
+      font-size:5pt;
       font-weight:700;
       color:#222;
       line-height:1.2;
     }
     .pt-st {
       display:block;
-      font-size:4.8pt;
+      font-size:4pt;
       color:#777;
       margin-top:0.5pt;
       line-height:1.2;
@@ -3252,11 +3252,14 @@ function doPrintRaw(orientation, fileName) {
   // data-ori CSS selector ile row height belirleniyor
   root.setAttribute('data-ori', orientation);
   root.style.display = 'block';
+  // Print sırasında tema değişmesin — prefers-color-scheme listener'ı geçici kapat
+  window._printInProgress = true;
   setTimeout(() => {
     window.print();
     root.style.display = 'none';
     root.removeAttribute('data-ori');
     if (fileName) document.title = origTitle;
+    window._printInProgress = false;
   }, 150);
 }
 
@@ -3414,7 +3417,8 @@ self.addEventListener('message', e => {
   // ── SİSTEM TEMASI DEĞİŞİNCE GÜNCELLE ──────────────────
   if (window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
-      // Sadece kullanıcı manuel seçim yapmamışsa sistem temasını takip et
+      // Print sırasında veya kullanıcı manuel seçim yapmışsa değiştirme
+      if (window._printInProgress) return;
       const saved = localStorage.getItem('fl-theme');
       if (!saved) {
         if (e.matches) {
