@@ -6,6 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FL Panel — Ankara Fen Lisesi</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#edeae4" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FL Panel">
+<meta name="application-name" content="FL Panel">
+<link rel="manifest" id="pwa-manifest">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -3236,17 +3244,19 @@ function doPrintRaw(orientation, fileName) {
 
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
-  // ikon CSS ile değişiyor
   localStorage.setItem('fl-theme', isLight ? 'light' : 'dark');
 }
 (function() {
   const saved = localStorage.getItem('fl-theme');
   if (saved === 'light') {
     document.documentElement.classList.add('light');
-    document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.getElementById('theme-btn');
-      // ikon CSS ile değişiyor
-    });
+  } else if (saved === 'dark') {
+    // karanlık — varsayılan zaten karanlık, bir şey yapma
+  } else {
+    // localStorage'da kayıt yok → sistem temasına bak
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.classList.add('light');
+    }
   }
 })();
 </script>
@@ -3265,5 +3275,147 @@ function toggleTheme() {
 
 <!-- PRINT ROOT -->
 <div id="print-root" style="display:none;"></div>
+
+<script>
+// ============================================================
+// PWA — INLINE MANIFEST + SERVICE WORKER
+// ============================================================
+(function() {
+
+  // ── İKON ÜRETİMİ (Canvas) ──────────────────────────────
+  function makeIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    // Arka plan
+    const isDark = !document.documentElement.classList.contains('light');
+    const bg = isDark ? '#0a0a0f' : '#edeae4';
+    const accent = isDark ? '#6ee7b7' : '#0d7a5f';
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, size, size);
+    // FL yazısı
+    const fs = Math.round(size * 0.42);
+    ctx.font = `900 ${fs}px 'Arial Black', Arial, sans-serif`;
+    ctx.fillStyle = accent;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('FL', size / 2, size * 0.48);
+    // Alt çizgi
+    const lw = size * 0.55;
+    const lx = (size - lw) / 2;
+    const ly = size * 0.72;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = size * 0.04;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(lx, ly);
+    ctx.lineTo(lx + lw, ly);
+    ctx.stroke();
+    return c.toDataURL('image/png');
+  }
+
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+
+  // ── MANIFEST ────────────────────────────────────────────
+  const manifest = {
+    name: 'Ankara Fen Lisesi — Ders Programı Paneli',
+    short_name: 'FL Panel',
+    description: 'Ankara Fen Lisesi ders programı, öğretmen ve sınıf programları',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    orientation: 'any',
+    background_color: '#0a0a0f',
+    theme_color: '#0a0a0f',
+    lang: 'tr',
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+
+  const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const manifestUrl  = URL.createObjectURL(manifestBlob);
+  document.getElementById('pwa-manifest').setAttribute('href', manifestUrl);
+
+  // ── SERVICE WORKER (inline) ─────────────────────────────
+  const CACHE = 'fl-panel-202603061127';
+  const swCode = `
+const CACHE_NAME = 'fl-panel-202603061127';
+const URLS = [self.location.href.replace('/sw-inline', '')];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(c => c.addAll(URLS)).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request).then(res => {
+      const clone = res.clone();
+      caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+      return res;
+    }).catch(() => caches.match(e.request))
+  );
+});
+
+// Güncelleme kontrolü: her aktivasyonda yeni cache varsa client'lara bildir
+self.addEventListener('message', e => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
+});
+`;
+
+  if ('serviceWorker' in navigator) {
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl  = URL.createObjectURL(swBlob);
+
+    navigator.serviceWorker.register(swUrl, { scope: './' })
+      .then(reg => {
+        // Güncelleme kontrolü
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              // Yeni versiyon hazır — sessizce yenile
+              newSW.postMessage('skipWaiting');
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+              });
+            }
+          });
+        });
+      })
+      .catch(() => {}); // Blob SW bazı tarayıcılarda çalışmayabilir, sorun değil
+  }
+
+  // ── SİSTEM TEMASI DEĞİŞİNCE GÜNCELLE ──────────────────
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+      // Sadece kullanıcı manuel seçim yapmamışsa sistem temasını takip et
+      const saved = localStorage.getItem('fl-theme');
+      if (!saved) {
+        if (e.matches) {
+          document.documentElement.classList.add('light');
+        } else {
+          document.documentElement.classList.remove('light');
+        }
+      }
+    });
+  }
+
+})();
+</script>
+
 </body>
 </html>
