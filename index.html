@@ -1154,6 +1154,17 @@
     .pt tbody tr:nth-child(even) td { background:#f9f9f9; }
     .pt tbody tr:nth-child(even) td.pt-s { background:#efefef !important; }
 
+    /* Satır ortadan bölünmesin, alta geçsin */
+    .pt tbody tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    /* Liste kartları da bölünmesin */
+    .pl-card {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
     /* Saat hücresi */
     .pt-s {
       background:#f5f5f5 !important;
