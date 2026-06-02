@@ -1600,9 +1600,9 @@ function ptOgr(dIdx, oIdx) {
   // Print: Resim-Müzik dersinde iki öğretmen
   if (dIdx === 28) {
     const ikinci = oIdx === 18 ? 19 : 18;
-    return `${ptOgr(dIdx,oIdx)}<span class="pt-o" style="opacity:0.7;">${ogretmenler[ikinci][0]}</span>`;
+    return `<span class="pt-o">${ogretmenler[oIdx][0]}</span><span class="pt-o" style="opacity:0.7;">${ogretmenler[ikinci][0]}</span>`;
   }
-  return `${ptOgr(dIdx,oIdx)}`;
+  return `<span class="pt-o">${ogretmenler[oIdx][0]}</span>`;
 }
 
 const SAATLER_NORMAL = [
@@ -2875,13 +2875,19 @@ function printHeader(baslik, altBaslik) {
 }
 
 function printSinif(idx, withList) {
+  if (idx === undefined || idx === null || isNaN(idx) || idx < 0 || idx >= SINIFLAR.length) {
+    console.error('printSinif: geçersiz idx =', idx);
+    return;
+  }
   const sinifAdi = SINIFLAR[idx];
   const gunler = sinifGun === -1 ? [0,1,2,3,4] : [sinifGun];
   const saatler = sinifSaat === -1 ? [0,1,2,3,4,5,6,7] : [sinifSaat];
 
   const tablo = buildPrintTable(gunler, saatler, (g, s) => {
-    const [dIdx, oIdx] = program[idx][g][s];
-    return `<td><b class="pt-d">${dersler[dIdx]}</b>${ptOgr(dIdx,oIdx)}</td>`;
+    const hucre = program[idx] && program[idx][g] && program[idx][g][s];
+    if (!hucre) { console.error('Hücre bulunamadı:', idx, g, s); return '<td>—</td>'; }
+    const [dIdx, oIdx] = hucre;
+    return `<td><b class="pt-d">${dersler[dIdx]||'?'}</b>${ptOgr(dIdx,oIdx)}</td>`;
   });
 
   let listHtml = '';
@@ -3370,67 +3376,9 @@ function toggleTheme() {
   const manifestUrl  = URL.createObjectURL(manifestBlob);
   document.getElementById('pwa-manifest').setAttribute('href', manifestUrl);
 
-  // ── SERVICE WORKER (inline) ─────────────────────────────
-  const CACHE = 'fl-panel-202603061127';
-  const swCode = `
-const CACHE_NAME = 'fl-panel-202603061127';
-const URLS = [self.location.href.replace('/sw-inline', '')];
+  // Service Worker kaldırıldı
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(c => c.addAll(URLS)).then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request).then(res => {
-      const clone = res.clone();
-      caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-      return res;
-    }).catch(() => caches.match(e.request))
-  );
-});
-
-// Güncelleme kontrolü: her aktivasyonda yeni cache varsa client'lara bildir
-self.addEventListener('message', e => {
-  if (e.data === 'skipWaiting') self.skipWaiting();
-});
-`;
-
-  if ('serviceWorker' in navigator) {
-    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-    const swUrl  = URL.createObjectURL(swBlob);
-
-    navigator.serviceWorker.register(swUrl, { scope: './' })
-      .then(reg => {
-        // Güncelleme kontrolü
-        reg.addEventListener('updatefound', () => {
-          const newSW = reg.installing;
-          newSW.addEventListener('statechange', () => {
-            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              // Yeni versiyon hazır — sessizce yenile
-              newSW.postMessage('skipWaiting');
-              navigator.serviceWorker.addEventListener('controllerchange', () => {
-                window.location.reload();
-              });
-            }
-          });
-        });
-      })
-      .catch(() => {}); // Blob SW bazı tarayıcılarda çalışmayabilir, sorun değil
-  }
-
-  // ── SİSTEM TEMASI DEĞİŞİNCE GÜNCELLE ──────────────────
+    // ── SİSTEM TEMASI DEĞİŞİNCE GÜNCELLE ──────────────────
   if (window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
       // Print sırasında veya kullanıcı manuel seçim yapmışsa değiştirme
