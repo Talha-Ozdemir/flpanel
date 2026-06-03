@@ -3255,16 +3255,22 @@ function printKarne() {
       <span class="pk-num">${genel.toFixed(genelDec)}</span>
     </div>`;
 
-  const altBaslik = [
-    ogrIsim ? ogrIsim : null,
-    ogrNumara ? `No: ${ogrNumara}` : null,
-    'Not Dökümü ve Ağırlıklı Ortalama'
-  ].filter(Boolean).join(' — ');
+  let ustBaslik, altBaslik;
+  if (ogrIsim) {
+    ustBaslik = `Karne — ${ogrIsim}`;
+    altBaslik = ogrNumara ? `Sınıf: ${sinifAdi} — No: ${ogrNumara}` : `Sınıf: ${sinifAdi}`;
+  } else if (ogrNumara) {
+    ustBaslik = `Karne — ${sinifAdi}`;
+    altBaslik = `No: ${ogrNumara}`;
+  } else {
+    ustBaslik = `Karne — ${sinifAdi}`;
+    altBaslik = 'Not Dökümü ve Ağırlıklı Ortalama';
+  }
 
   doPrint(
-    printHeader(`Karne — ${sinifAdi}`, altBaslik),
+    printHeader(ustBaslik, altBaslik),
     body, 'portrait',
-    `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}${ogrIsim ? '_'+ogrIsim.replace(/\s+/g,'_') : ''}`
+    `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}${ogrIsim ? '_'+ogrIsim.replace(/[^a-zA-Z0-9]/g,'_') : ''}`
   );
 }
 
