@@ -3275,7 +3275,8 @@ function printKarne() {
 }
 
 
-function doPrint(headerHtml, bodyHtml, orientation, fileName) {const root = document.getElementById('print-root');
+function doPrint(headerHtml, bodyHtml, orientation, fileName) {
+  const root = document.getElementById('print-root');
   root.innerHTML = `<div class="print-page">${headerHtml}${bodyHtml}</div>`;
   doPrintRaw(orientation, fileName);
 }
