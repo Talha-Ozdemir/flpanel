@@ -3258,10 +3258,10 @@ function printKarne() {
   let ustBaslik, altBaslik;
   if (ogrIsim) {
     ustBaslik = `Karne — ${ogrIsim}`;
-    altBaslik = ogrNumara ? `Sınıf: ${sinifAdi} — No: ${ogrNumara}` : `Sınıf: ${sinifAdi}`;
+    altBaslik = ogrNumara ? `Sınıf: ${sinifAdi} — No: ${ogrNumara} - Not Dökümü ve Ağırlıklı Ortalama` : `Sınıf: ${sinifAdi} - Not Dökümü ve Ağırlıklı Ortalama`;
   } else if (ogrNumara) {
     ustBaslik = `Karne — ${sinifAdi}`;
-    altBaslik = `No: ${ogrNumara}`;
+    altBaslik = `No: ${ogrNumara} - Not Dökümü ve Ağırlıklı Ortalama`;
   } else {
     ustBaslik = `Karne — ${sinifAdi}`;
     altBaslik = 'Not Dökümü ve Ağırlıklı Ortalama';
@@ -3275,8 +3275,7 @@ function printKarne() {
 }
 
 
-function doPrint(headerHtml, bodyHtml, orientation, fileName) {
-  const root = document.getElementById('print-root');
+function doPrint(headerHtml, bodyHtml, orientation, fileName) {const root = document.getElementById('print-root');
   root.innerHTML = `<div class="print-page">${headerHtml}${bodyHtml}</div>`;
   doPrintRaw(orientation, fileName);
 }
