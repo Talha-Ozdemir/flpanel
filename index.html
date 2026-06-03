@@ -1575,6 +1575,14 @@
         <option value="">— Sınıf Seç —</option>
       </select>
     </div>
+    <div class="selector-row" style="display:flex;gap:10px;margin-top:8px;">
+      <input type="text" id="karne-isim" placeholder="Öğrenci Adı Soyadı (isteğe bağlı)"
+        style="flex:2;padding:8px 10px;background:var(--surface);border:1px solid var(--border);
+        border-radius:2px;color:var(--text);font-family:'Space Mono',monospace;font-size:0.7rem;">
+      <input type="text" id="karne-numara" placeholder="Okul No (isteğe bağlı)"
+        style="flex:1;padding:8px 10px;background:var(--surface);border:1px solid var(--border);
+        border-radius:2px;color:var(--text);font-family:'Space Mono',monospace;font-size:0.7rem;">
+    </div>
     <div id="karne-form"></div>
     <button class="pdf-btn" id="pdf-btn-karne" style="display:none;" onclick="openPdfModal('karne')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -3178,6 +3186,8 @@ function printGenel(withList) {
 function printKarne() {
   const sinifEl = document.getElementById('karne-sinif');
   const sinifAdi = sinifEl?.options[sinifEl?.selectedIndex]?.text || '';
+  const ogrIsim = document.getElementById('karne-isim')?.value.trim() || '';
+  const ogrNumara = document.getElementById('karne-numara')?.value.trim() || '';
   const d = window._karneD;
   if (!d) return;
 
@@ -3245,10 +3255,16 @@ function printKarne() {
       <span class="pk-num">${genel.toFixed(genelDec)}</span>
     </div>`;
 
+  const altBaslik = [
+    ogrIsim ? ogrIsim : null,
+    ogrNumara ? `No: ${ogrNumara}` : null,
+    'Not Dökümü ve Ağırlıklı Ortalama'
+  ].filter(Boolean).join(' — ');
+
   doPrint(
-    printHeader(`Karne — ${sinifAdi}`, 'Not Dökümü ve Ağırlıklı Ortalama'),
+    printHeader(`Karne — ${sinifAdi}`, altBaslik),
     body, 'portrait',
-    `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}`
+    `Karne_${sinifAdi.replace(/[^a-zA-Z0-9]/g,'_')}${ogrIsim ? '_'+ogrIsim.replace(/\s+/g,'_') : ''}`
   );
 }
 
