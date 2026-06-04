@@ -2775,7 +2775,8 @@ function openPdfModal(type) {
       title: 'Karne — PDF İndir',
       sub: document.getElementById('karne-sinif')?.options[document.getElementById('karne-sinif')?.selectedIndex]?.text || '',
       options: [
-        { icon: '<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect x="1" y="1" width="16" height="22" rx="1.5" stroke="currentColor" stroke-width="2"/> <line x1="4" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/> <line x1="4" y1="11" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/> <line x1="4" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/></svg>', label: 'Karne PDF', desc: 'Ders listesi ve ağırlıklı ortalama', fn: () => printKarne() },
+        { icon: '<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect x="1" y="1" width="16" height="22" rx="1.5" stroke="currentColor" stroke-width="2"/> <line x1="4" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/> <line x1="4" y1="11" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/> <line x1="4" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/></svg>', label: 'Karne PDF', desc: 'Not sayısı ve ağırlıklı ortalama', fn: () => printKarne(false) },
+                { icon: '<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect x="1" y="1" width="16" height="22" rx="1.5" stroke="currentColor" stroke-width="2"/> <line x1="4" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/> <line x1="4" y1="11" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/> <line x1="4" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/></svg>', label: 'Karne PDF — Notlarla', desc: 'Girilen notlar ve ağırlıklı ortalama', fn: () => printKarne(true) },
       ]
     }
   };
@@ -3184,7 +3185,7 @@ function printGenel(withList) {
 }
 
 
-function printKarne() {
+function printKarne(withNotes) {
   const sinifEl = document.getElementById('karne-sinif');
   const sinifAdi = sinifEl?.options[sinifEl?.selectedIndex]?.text || '';
   const ogrIsim = document.getElementById('karne-isim')?.value.trim() || '';
@@ -3226,9 +3227,12 @@ function printKarne() {
     tnot  += d[dIdx] * avg;
     const dec = getDecimal(dIdx);
 
+    const ortaCell = withNotes
+      ? `<td style="text-align:center;vertical-align:middle;font-size:7pt;font-family:'Space Mono',monospace;">${parts.join('-')}</td>`
+      : `<td style="text-align:center;vertical-align:middle;font-size:7pt;color:#888;">${parts.length} not</td>`;
     rows += `<tr>
       <td><b class="pt-d">${dersler[dIdx]}</b></td>
-      <td style="text-align:center;vertical-align:middle;font-size:7pt;color:#888;">${parts.length} not</td>
+      ${ortaCell}
       <td style="text-align:right;vertical-align:middle;font-size:8.5pt;font-weight:700;font-family:'Space Mono',monospace;">${avg.toFixed(dec)}</td>
     </tr>`;
   }
@@ -3246,7 +3250,7 @@ function printKarne() {
       </colgroup>
       <thead><tr>
         <th style="text-align:left;padding-left:4pt;">DERS</th>
-        <th>NOT SAYISI</th>
+        <th style="text-align:center;">${withNotes ? 'NOTLAR' : 'NOT SAYISI'}</th>
         <th style="text-align:right;padding-right:4pt;">ORTALAMA</th>
       </tr></thead>
       <tbody>${rows}</tbody>
