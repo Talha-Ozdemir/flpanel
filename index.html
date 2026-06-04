@@ -1883,6 +1883,35 @@ function getCurrentLesson() {
 // ŞU AN PANELİ
 // ============================================================
 
+function getNextLesson() {
+  // Bir sonraki ders gününü ve ilk saatini bul
+  const now = new Date();
+  const dow = now.getDay(); // 0=Paz, 1=Pzt...6=Cmt
+  const mins = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+  // Bugün hafta içiyse ve ders henüz başlamadıysa → bugünün ilk dersine bak
+  if (dow >= 1 && dow <= 5) {
+    const gun = dow - 1; // 0-4
+    const saatler = gun === 4 ? SAATLER_CUMA : SAATLER_NORMAL;
+    const ilkBaslangic = parseInt(saatler[0][0].split(':')[0])*3600 + parseInt(saatler[0][0].split(':')[1])*60;
+    if (mins < ilkBaslangic) {
+      const kalanSn = ilkBaslangic - mins;
+      const kalanDk = Math.ceil(kalanSn / 60);
+      return { gun, saat: 0, saatStr: saatler[0][0] + '–' + saatler[0][1], kalanDk, bugun: true };
+    }
+  }
+
+  // Sonraki iş günü ilk dersini bul (en fazla 7 gün ileriye bak)
+  for (let i = 1; i <= 7; i++) {
+    const nextDow = (dow + i) % 7;
+    if (nextDow === 0 || nextDow === 6) continue; // hafta sonu atla
+    const gun = nextDow - 1;
+    const saatler = gun === 4 ? SAATLER_CUMA : SAATLER_NORMAL;
+    return { gun, saat: 0, saatStr: saatler[0][0] + '–' + saatler[0][1], kalanDk: null, bugun: false };
+  }
+  return null;
+}
+
 function goToSinif(idx) {
   switchTab('sinif');
   document.getElementById('sinif-select').value = idx;
@@ -1907,9 +1936,45 @@ function renderSuan() {
   const cur = getCurrentLesson();
 
   if (!cur) {
-    const now = new Date();
-    const dow = now.getDay();
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;width:100%;text-align:center;">Ders saati dışındasınız.</div>';
+    const next = getNextLesson();
+    const GUNLER_TR = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma'];
+    if (next) {
+      const gunAdi = GUNLER_TR[next.gun];
+      const saatNo = next.saat + 1;
+      // Seçili moda göre dersler
+      let dersListesi = '';
+      if (suanMod === 'sinif') {
+        const satirlar = [];
+        for (let i = 0; i < SINIFLAR.length; i++) {
+          const [dIdx, oIdx] = program[i][next.gun][next.saat];
+          satirlar.push(`<span style="font-size:0.72rem;opacity:0.7;">${SINIFLAR[i]}</span> <b style="font-size:0.8rem;">${dersler[dIdx]}</b>`);
+        }
+        dersListesi = satirlar.slice(0,8).join('<span style="opacity:0.3;margin:0 6px;">·</span>');
+      } else if (suanMod === 'ogretmen' && selectedOgr !== null) {
+        for (let i = 0; i < SINIFLAR.length; i++) {
+          const [dIdx, pOgrIdx] = program[i][next.gun][next.saat];
+          if (pOgrIdx === selectedOgr || (dIdx === 28 && (selectedOgr === 18 || selectedOgr === 19) && (pOgrIdx === 18 || pOgrIdx === 19))) {
+            dersListesi = `<b>${dersler[dIdx]}</b> — ${SINIFLAR[i]}`;
+            break;
+          }
+        }
+        if (!dersListesi) dersListesi = 'Bu saatte ders yok';
+      }
+
+      const bilgi = next.bugun
+        ? (next.kalanDk <= 60
+            ? `${next.kalanDk} dakika sonra, bugün ${saatNo}. saat (${next.saatStr}) başlıyor`
+            : `Bugün ${saatNo}. saat ${next.saatStr} başlıyor`)
+        : `Bir sonraki ders günü: <b>${gunAdi}</b>, ${saatNo}. saat (${next.saatStr})`;
+
+      grid.innerHTML = `<div style="grid-column:1/-1;width:100%;padding:16px 8px;text-align:center;">
+        <div style="font-size:0.65rem;letter-spacing:1px;text-transform:uppercase;opacity:0.45;margin-bottom:8px;">Şu an ders yok · Sonraki ders</div>
+        <div style="font-size:0.8rem;opacity:0.7;margin-bottom:10px;">${bilgi}</div>
+        <div style="font-size:0.85rem;line-height:2;">${dersListesi}</div>
+      </div>`;
+    } else {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;width:100%;text-align:center;">Ders saati dışındasınız.</div>';
+    }
     return;
   }
 
