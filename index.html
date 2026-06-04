@@ -1388,7 +1388,6 @@
       height:auto !important;
       max-height:none !important;
     }
-    
     /* Karne */
     .pt-karne .pt-d {
       white-space:normal;
@@ -3229,7 +3228,7 @@ function printKarne(withNotes) {
     const dec = getDecimal(dIdx);
 
     const ortaCell = withNotes
-      ? `<td style="text-align:center;vertical-align:middle;font-size:7pt;font-family:'Space Mono',monospace;">${parts.join('-')}</td>`
+      ? `<td style="text-align:center;vertical-align:middle;font-size:${Math.max(4.5, 7 - parts.length * 0.25)}pt;font-family:'Space Mono',monospace;white-space:nowrap;">${parts.join('-')}</td>`
       : `<td style="text-align:center;vertical-align:middle;font-size:7pt;color:#888;">${parts.length} not</td>`;
     rows += `<tr>
       <td><b class="pt-d">${dersler[dIdx]}</b></td>
@@ -3243,16 +3242,16 @@ function printKarne(withNotes) {
   const genelDec = getGenelDecimal();
 
   const body = `
-    <table class="pt pt-karne">
+    <table class="pt pt-karne" style="table-layout:auto;width:100%;">
       <colgroup>
-        <col style="width:auto">
-        <col style="width:28mm">
+        <col>
+        <col style="width:1px">
         <col style="width:38mm">
       </colgroup>
       <thead><tr>
         <th style="text-align:left;padding-left:4pt;">DERS</th>
-        <th style="text-align:center;">${withNotes ? 'NOTLAR' : 'NOT SAYISI'}</th>
-        <th style="text-align:right;padding-right:4pt;">ORTALAMA</th>
+        <th style="text-align:center;white-space:nowrap;">${withNotes ? 'NOTLAR' : 'NOT SAYISI'}</th>
+        <th style="text-align:right;padding-right:4pt;white-space:nowrap;">ORTALAMA</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
