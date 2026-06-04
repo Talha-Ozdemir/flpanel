@@ -3228,7 +3228,7 @@ function printKarne(withNotes) {
     const dec = getDecimal(dIdx);
 
     const ortaCell = withNotes
-      ? `<td style="text-align:center;vertical-align:middle;font-size:${Math.max(4.5, 7 - parts.length * 0.25)}pt;font-family:'Space Mono',monospace;white-space:nowrap;">${parts.join('-')}</td>`
+      ? `<td style="text-align:center;vertical-align:middle;font-size:${Math.max(4.5, 7 - parts.length * 0.25)}pt;font-family:'Space Mono',monospace;white-space:nowrap;font-size:7pt !important;">${parts.join('-')}</td>`
       : `<td style="text-align:center;vertical-align:middle;font-size:7pt;color:#888;">${parts.length} not</td>`;
     rows += `<tr>
       <td><b class="pt-d">${dersler[dIdx]}</b></td>
@@ -3244,8 +3244,8 @@ function printKarne(withNotes) {
   const body = `
     <table class="pt pt-karne" style="table-layout:auto;width:100%;">
       <colgroup>
-        <col style="width:40%">
-        <col style="width:auto">
+        <col style="width:35%">
+        <col style="width:55%">
         <col style="width:38mm">
       </colgroup>
       <thead><tr>
