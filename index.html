@@ -1716,7 +1716,7 @@ const ogretmenler = [
   ["Ozan BİLGİN","Rehberlik"],["Zeynep Hilal ATA ÇOLAK","Rehberlik"],
   ["Ertürk AYDIN","Beden"],["İbrahim Çetin ÖZTÜRK","Beden"],
   ["Ayfer BAKIR","Bilişim"],["Dr. Nebahat KOCASARAÇ","Biyoloji"],
-  ["Nursen COŞKUN","Biyoloji"],["Özer AKGÜMÜŞ","Biyoloji"],
+  ["Nurşen COŞKUN","Biyoloji"],["Özer AKGÜMÜŞ","Biyoloji"],
   ["Mustafa EVREN","Din Kültürü"],
   ["Saadet KARA","Din Kültürü"],["Sema MURATOĞLU","Felsefe"],
   ["Sevilay Canan ÖZTURAN","Felsefe"],["Alaaddin ÖZTÜRK","Fizik"],
@@ -3410,10 +3410,17 @@ function printKarne(withNotes, withTeacher, withHours) {
   const sinifIdx = parseInt(document.getElementById('karne-sinif').value);
   const getDersOgretmen = (dIdx) => {
     if (isNaN(sinifIdx)) return '';
+    const di = parseInt(dIdx);
     for (let g = 0; g < 5; g++) {
       for (let s = 0; s < 8; s++) {
         const [pDIdx, pOIdx] = program[sinifIdx][g][s];
-        if (pDIdx === parseInt(dIdx)) return ogretmenler[pOIdx][0];
+        if (pDIdx === di) {
+          if (di === 28) {
+            const ikinci = pOIdx === 18 ? 19 : 18;
+            return `${ogretmenler[pOIdx][0]} - ${ogretmenler[ikinci][0]}`;
+          }
+          return ogretmenler[pOIdx][0];
+        }
       }
     }
     return '';
