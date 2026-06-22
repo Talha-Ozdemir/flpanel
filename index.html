@@ -2964,6 +2964,51 @@ function openPdfModal(type) {
       row.onclick = () => row.classList.toggle('active');
       wrap.appendChild(row);
     });
+    // Resim-Müzik var mı kontrol et
+    const sinifIdxKarne = parseInt(document.getElementById('karne-sinif').value);
+    const hasResimMuzik = !isNaN(sinifIdxKarne) && [0,1,2,3,4].some(g =>
+      [0,1,2,3,4,5,6,7].some(s => program[sinifIdxKarne][g][s][0] === 28)
+    );
+
+    // Resim-Müzik notuna girilmiş mi kontrol et
+    const rmInput = document.getElementById('karne-28');
+    const rmGirildi = rmInput && rmInput.value.trim() !== '';
+
+    let rmWrap = null;
+    if (hasResimMuzik && rmGirildi) {
+      rmWrap = document.createElement('div');
+      rmWrap.style.cssText = 'display:flex;align-items:center;gap:0;margin-bottom:4px;border:1px solid var(--border);border-radius:2px;overflow:hidden;';
+      rmWrap.innerHTML = `
+        <button id="kt-rm-resim"
+          style="flex:1;padding:7px 10px;font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;letter-spacing:1px;
+          border:none;border-right:1px solid var(--border);background:var(--accent);color:#0a0a0f;cursor:pointer;transition:all 0.15s;">
+          RESİM
+        </button>
+        <span style="padding:0 8px;font-size:0.6rem;color:var(--muted);font-family:'Space Mono',monospace;">/</span>
+        <button id="kt-rm-muzik"
+          style="flex:1;padding:7px 10px;font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;letter-spacing:1px;
+          border:none;border-left:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;">
+          MÜZİK
+        </button>`;
+      // Tıklama logic'i ekle
+      setTimeout(() => {
+        const btnR = document.getElementById('kt-rm-resim');
+        const btnM = document.getElementById('kt-rm-muzik');
+        if (!btnR || !btnM) return;
+        btnR.addEventListener('click', () => {
+          btnR.style.background = 'var(--accent)'; btnR.style.color = '#0a0a0f';
+          btnM.style.background = 'transparent'; btnM.style.color = 'var(--muted)';
+          btnR.dataset.active = '1'; btnM.dataset.active = '';
+        });
+        btnM.addEventListener('click', () => {
+          btnM.style.background = 'var(--accent)'; btnM.style.color = '#0a0a0f';
+          btnR.style.background = 'transparent'; btnR.style.color = 'var(--muted)';
+          btnM.dataset.active = '1'; btnR.dataset.active = '';
+        });
+        btnR.dataset.active = '1';
+      }, 0);
+    }
+
     const pdfBtn = document.createElement('button');
     pdfBtn.className = 'karne-pdf-btn';
     pdfBtn.textContent = 'PDF İndir';
@@ -2971,10 +3016,17 @@ function openPdfModal(type) {
       const withNotes    = document.getElementById('kt-notlar')?.classList.contains('active');
       const withTeacher  = document.getElementById('kt-ogretmen')?.classList.contains('active');
       const withHours    = document.getElementById('kt-saat')?.classList.contains('active');
+      const rmSec = (hasResimMuzik && rmGirildi)
+        ? (document.getElementById('kt-rm-muzik')?.dataset.active === '1' ? 'muzik' : 'resim')
+        : null;
       closePdfModal();
-      setTimeout(() => printKarne(withNotes, withTeacher, withHours), 100);
+      setTimeout(() => printKarne(withNotes, withTeacher, withHours, rmSec), 100);
     };
     opts.appendChild(wrap);
+    if (rmWrap) {
+      rmWrap.style.marginTop = '10px';
+      opts.appendChild(rmWrap);
+    }
     opts.appendChild(pdfBtn);
   } else {
     cfg.options.forEach((opt, i) => {
@@ -3214,7 +3266,7 @@ function printGenel(withList) {
               cumaTag = `<span class="pt-cuma-tag">${gS2}–${gE2}</span>`;
             }
           }
-          tbody += `<td>${cumaTag}<b class="pt-d">${dersler[dIdx]}</b>${ptOgr(dIdx,oIdx)}</td>`;
+          tbody += `<td>${cumaTag}<b class="pt-d">${parseInt(dIdx)===28?(rmSec==='muzik'?'Müzik':'Resim'):dersler[dIdx]}</b>${ptOgr(dIdx,oIdx)}</td>`;
         }
         tbody += `</tr>`;
       }
@@ -3314,7 +3366,7 @@ function printGenel(withList) {
         ? `${GUNLER[genelGun]} — Ders Programı` : withList ? 'Program ve Öğretmen Listesi' : 'Ders Programı';
       const tablo = buildPrintTable(gunler, saatler, (g, s) => {
         const [dIdx, oIdx] = program[idx][g][s];
-        return `<td><b class="pt-d">${dersler[dIdx]}</b>${ptOgr(dIdx,oIdx)}</td>`;
+        return `<td><b class="pt-d">${parseInt(dIdx)===28?(rmSec==='muzik'?'Müzik':'Resim'):dersler[dIdx]}</b>${ptOgr(dIdx,oIdx)}</td>`;
       });
       let listHtml = '';
       if (withList) {
@@ -3378,7 +3430,7 @@ function printGenel(withList) {
 }
 
 
-function printKarne(withNotes, withTeacher, withHours) {
+function printKarne(withNotes, withTeacher, withHours, rmSec) {
   const sinifEl = document.getElementById('karne-sinif');
   const sinifAdi = sinifEl?.options[sinifEl?.selectedIndex]?.text || '';
   const ogrIsim  = document.getElementById('karne-isim')?.value.trim() || '';
@@ -3411,16 +3463,13 @@ function printKarne(withNotes, withTeacher, withHours) {
   const getDersOgretmen = (dIdx) => {
     if (isNaN(sinifIdx)) return '';
     const di = parseInt(dIdx);
+    if (di === 28) {
+      return rmSec === 'muzik' ? ogretmenler[18][0] : ogretmenler[19][0];
+    }
     for (let g = 0; g < 5; g++) {
       for (let s = 0; s < 8; s++) {
         const [pDIdx, pOIdx] = program[sinifIdx][g][s];
-        if (pDIdx === di) {
-          if (di === 28) {
-            const ikinci = pOIdx === 18 ? 19 : 18;
-            return `${ogretmenler[pOIdx][0]} - ${ogretmenler[ikinci][0]}`;
-          }
-          return ogretmenler[pOIdx][0];
-        }
+        if (pDIdx === di) return ogretmenler[pOIdx][0];
       }
     }
     return '';
@@ -3445,21 +3494,21 @@ function printKarne(withNotes, withTeacher, withHours) {
       ? `<td style="padding:0;">
            <table style="width:100%;border-collapse:collapse;">
              <tr>
-               <td style="width:14pt;text-align:center;vertical-align:middle;font-size:7pt;font-weight:700;font-family:'Space Mono',monospace;border-right:0.3mm solid #ccc;padding:3pt 2pt;">${saatSayisi}</td>
-               <td style="vertical-align:middle;padding:3pt 4pt;"><b class="pt-d">${dersler[dIdx]}</b></td>
+               <td style="width:14pt;text-align:center;vertical-align:middle;font-size:8.5pt;font-weight:700;font-family:'Space Mono',monospace;border-right:0.3mm solid #ccc;padding:3pt 2pt;">${saatSayisi}</td>
+               <td style="vertical-align:middle;padding:3pt 4pt;"><b class="pt-d">${parseInt(dIdx)===28?(rmSec==='muzik'?'Müzik':'Resim'):dersler[dIdx]}</b></td>
              </tr>
            </table>
          </td>`
-      : `<td><b class="pt-d">${dersler[dIdx]}</b></td>`;
+      : `<td><b class="pt-d">${parseInt(dIdx)===28?(rmSec==='muzik'?'Müzik':'Resim'):dersler[dIdx]}</b></td>`;
 
     // Öğretmen sütunu
     const ogretmenCell = withTeacher
-      ? `<td style="text-align:center;vertical-align:middle;font-size:7pt;font-weight:700;font-family:'Space Mono',monospace;">${getDersOgretmen(dIdx)}</td>`
+      ? `<td style="text-align:center;vertical-align:middle;font-size:8.5pt;font-weight:700;font-family:'Space Mono',monospace;">${getDersOgretmen(dIdx)}</td>`
       : '';
 
     // Notlar sütunu
     const notlarCell = withNotes
-      ? `<td style="text-align:center;vertical-align:middle;font-size:7pt;font-weight:700;font-family:'Space Mono',monospace;white-space:nowrap;">${parts.join('-')}</td>`
+      ? `<td style="text-align:center;vertical-align:middle;font-size:8.5pt;font-weight:700;font-family:'Space Mono',monospace;white-space:nowrap;">${parts.join('-')}</td>`
       : '';
 
     rows += `<tr>
